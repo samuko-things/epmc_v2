@@ -1,0 +1,20 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+epmcV2 KEYWORD1
+EPMC_V2 KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+writeSpeed KEYWORD2
+writePWM KEYWORD2
+readPos  KEYWORD2
+readVel  KEYWORD2
+readVelFull  KEYWORD2
+setCmdTimeout KEYWORD2
+getCmdTimeout KEYWORD2
+setPidMode KEYWORD2
+getPidMode KEYWORD2

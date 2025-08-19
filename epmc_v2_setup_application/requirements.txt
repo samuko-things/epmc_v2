@@ -1,0 +1,4 @@
+pyserial
+ttkbootstrap
+pyinstaller
+termcolor
