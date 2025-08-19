@@ -167,16 +167,6 @@ void loop()
         pidStopTime[i] = now_us;
       }
     }
-    else if (pidMode[i] == 0 && isMotorCommanded[i] == 0)
-    {
-      if ((now_us - pidStopTime[i]) >= pidStopTimeInterval)
-      {
-        pidMode[i] = 1;
-        pidMotor[i].begin();
-        isMotorCommanded[i] = 0;
-        pidStopTime[i] = now_us;
-      }
-    }
     else
     {
       pidStopTime[i] = now_us;
