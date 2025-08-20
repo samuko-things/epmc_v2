@@ -11,51 +11,73 @@
 // #include "parameter_store.h"
 
 //--------------- global variables -----------------//
-const int num_of_motors = 2;
+const int num_of_motors = 4;
 
 // motor 0 H-Bridge Connection
-int IN1 = 26, IN2 = 27, enA = 25;
+int IN1_0 = 5, IN2_0 = 17, EN_0 = 16;
 // motor 1 H-Bridge Connection
-int IN3 = 14, IN4 = 12, enB = 13;
+int IN1_1 = 19, IN2_1 = 18, EN_1 = 23;
+// motor 2 H-Bridge Connection
+int IN1_2 = 26, IN2_2 = 27, EN_2 = 12;
+// motor 3 H-Bridge Connection
+int IN1_3 = 33, IN2_3 = 25, EN_3 = 32;
 
 L298NMotorControl motor[num_of_motors] = {
-  L298NMotorControl(IN1, IN2, enA), // motor 0
-  L298NMotorControl(IN3, IN4, enB) // motor 1
+  L298NMotorControl(IN1_0, IN2_0, EN_0), // motor 0
+  L298NMotorControl(IN1_1, IN2_1, EN_1), // motor 1
+  L298NMotorControl(IN1_2, IN2_2, EN_2), // motor 2
+  L298NMotorControl(IN1_3, IN2_3, EN_3) // motor 3
 };
 
 float enc_ppr[num_of_motors]={
   1000.0, // motor 0 encoder pulse per revolution parameter
-  1000.0 // motor 1 encoder pulse per revolution parameter
+  1000.0, // motor 1 encoder pulse per revolution parameter
+  1000.0, // motor 2 encoder pulse per revolution parameter
+  1000.0 // motor 3 encoder pulse per revolution parameter
 };
 
 // motor 0 encoder connection
-int enc1_clkPin = 18, enc1_dirPin = 19;
+int enc0_clkPin = 15, enc0_dirPin = 4;
 // motor 1 encoder connection
-int enc2_clkPin = 16, enc2_dirPin = 17;
+int enc1_clkPin = 35, enc1_dirPin = 34;
+// motor 2 encoder connection
+int enc2_clkPin = 13, enc2_dirPin = 14;
+// motor 3 encoder connection
+int enc3_clkPin = 39, enc3_dirPin = 36;
 
 QuadEncoder encoder[num_of_motors] = {
-  QuadEncoder(enc1_clkPin, enc1_dirPin, enc_ppr[0]), // motor 0 encoder connection
-  QuadEncoder(enc2_clkPin, enc2_dirPin, enc_ppr[1]) // motor 1 encoder connection
+  QuadEncoder(enc0_clkPin, enc0_dirPin, enc_ppr[0]), // motor 0 encoder connection
+  QuadEncoder(enc1_clkPin, enc1_dirPin, enc_ppr[1]), // motor 1 encoder connection
+  QuadEncoder(enc2_clkPin, enc2_dirPin, enc_ppr[2]), // motor 2 encoder connection
+  QuadEncoder(enc3_clkPin, enc3_dirPin, enc_ppr[3]) // motor 3 encoder connection
 };
 
 // adaptive lowpass Filter
 const int filterOrder = 1;
 float cutOffFreq[num_of_motors] = {
   1.0, // motor 0 velocity filter cutoff frequency
-  1.0 // motor 1 velocity filter cutoff frequency
+  1.0, // motor 1 velocity filter cutoff frequency
+  1.0, // motor 2 velocity filter cutoff frequency
+  1.0 // motor 3 velocity filter cutoff frequency
 };
 
 AdaptiveLowPassFilter velFilter[num_of_motors] = {
   AdaptiveLowPassFilter(filterOrder, cutOffFreq[0]), // motor 0 velocity filter
-  AdaptiveLowPassFilter(filterOrder, cutOffFreq[1]) // motor 1 velocity filter
+  AdaptiveLowPassFilter(filterOrder, cutOffFreq[1]), // motor 1 velocity filter
+  AdaptiveLowPassFilter(filterOrder, cutOffFreq[2]), // motor 0 velocity filter
+  AdaptiveLowPassFilter(filterOrder, cutOffFreq[3]) // motor 1 velocity filter
 };
 
 float filteredVel[num_of_motors] = {
+  0.0,
+  0.0,
   0.0,
   0.0
 };
 
 float unfilteredVel[num_of_motors] = {
+  0.0,
+  0.0,
   0.0,
   0.0
 };
@@ -65,25 +87,35 @@ float outMin = -255.0, outMax = 255.0;
 
 float kp[num_of_motors] = {
   0.0,
+  0.0,
+  0.0,
   0.0
 };
 
 float ki[num_of_motors] = {
+  0.0,
+  0.0,
   0.0,
   0.0
 };
 
 float kd[num_of_motors] = {
   0.0,
+  0.0,
+  0.0,
   0.0
 };
 
 float target[num_of_motors] = {
   0.0,
+  0.0,
+  0.0,
   0.0
 };
 
 float output[num_of_motors] = {
+  0.0,
+  0.0,
   0.0,
   0.0
 };
@@ -91,27 +123,37 @@ float output[num_of_motors] = {
 SimplePID pidMotor[num_of_motors] = {
   SimplePID(kp[0], ki[0], kd[0], outMin, outMax),
   SimplePID(kp[1], ki[1], kd[1], outMin, outMax),
+  SimplePID(kp[2], ki[2], kd[2], outMin, outMax),
+  SimplePID(kp[3], ki[3], kd[3], outMin, outMax)
 };
 
 
 // check if in PID or PWM mode
 int pidMode[num_of_motors] = {
   1,
+  1,
+  1,
   1
 }; // 1-PID MODE, 0-SETUP/PWM MODE
 
 int isMotorCommanded[num_of_motors] = {
+  0,
+  0,
   0,
   0
 };
 
 float rdir[num_of_motors] = {
   1.0,
+  1.0,
+  1.0,
   1.0
 };
 
 // // maximum motor velocity that can be commanded
 float maxVel[num_of_motors] = {
+  10.0,
+  10.0,
   10.0,
   10.0
 };
@@ -132,49 +174,49 @@ bool firstLoad = false;
 //--------------- storage variables -----------------//
 Preferences storage;
 
-const char * ppr_key[4] = {
+const char * ppr_key[num_of_motors] = {
   "ppr0",
   "ppr1",
   "ppr2",
   "ppr3"
 };
 
-const char * cf_key[4] = {
+const char * cf_key[num_of_motors] = {
   "cf0",
   "cf1",
   "cf2",
   "cf3"
 };
 
-const char * kp_key[4] = {
+const char * kp_key[num_of_motors] = {
   "kp0",
   "kp1",
   "kp2",
   "kp3"
 };
 
-const char * ki_key[4] = {
+const char * ki_key[num_of_motors] = {
   "ki0",
   "ki1",
   "ki2",
   "ki3"
 };
 
-const char * kd_key[4] = {
+const char * kd_key[num_of_motors] = {
   "kd0",
   "kd1",
   "kd2",
   "kd3"
 };
 
-const char * rdir_key[4] = {
+const char * rdir_key[num_of_motors] = {
   "rdir0",
   "rdir1",
   "rdir2",
   "rdir3"
 };
 
-const char * maxVel_key[4] = {
+const char * maxVel_key[num_of_motors] = {
   "maxVel0",
   "maxVel1",
   "maxVel2",

@@ -3,6 +3,7 @@
 #include "serial_comm.h"
 #include "i2c_comm.h"
 
+//------------------------------------------------------------------------------//
 void IRAM_ATTR readEncoder0()
 {
   unsigned long currentTickTime = micros();
@@ -49,6 +50,53 @@ void IRAM_ATTR readEncoder1()
   encoder[1].oldTickTime = currentTickTime;
 }
 
+void IRAM_ATTR readEncoder2()
+{
+  unsigned long currentTickTime = micros();
+
+  if (digitalRead(encoder[2].clkPin) == digitalRead(encoder[2].dirPin))
+  {
+    encoder[2].tickCount -= 1;
+    encoder[2].dir = -1;
+  }
+  else
+  {
+    encoder[2].tickCount += 1;
+    encoder[2].dir = 1;
+  }
+
+  unsigned long period = currentTickTime - encoder[2].oldTickTime;
+  if (period > 50 && period < 20000000)
+  { // Ignore if > 20 sec or negative
+    encoder[2].periodPerTick = period;
+  }
+  encoder[2].oldTickTime = currentTickTime;
+}
+
+void IRAM_ATTR readEncoder3()
+{
+  unsigned long currentTickTime = micros();
+
+  if (digitalRead(encoder[3].clkPin) == digitalRead(encoder[3].dirPin))
+  {
+    encoder[3].tickCount -= 1;
+    encoder[3].dir = -1;
+  }
+  else
+  {
+    encoder[3].tickCount += 1;
+    encoder[3].dir = 1;
+  }
+
+  unsigned long period = currentTickTime - encoder[3].oldTickTime;
+  if (period > 50 && period < 20000000)
+  { // Ignore if > 20 sec or negative
+    encoder[3].periodPerTick = period;
+  }
+  encoder[3].oldTickTime = currentTickTime;
+}
+//----------------------------------------------------------------------------------------------//
+
 void encoderInit()
 {
   for (int i = 0; i < num_of_motors; i += 1)
@@ -58,6 +106,8 @@ void encoderInit()
 
   attachInterrupt(digitalPinToInterrupt(encoder[0].clkPin), readEncoder0, RISING);
   attachInterrupt(digitalPinToInterrupt(encoder[1].clkPin), readEncoder1, RISING);
+  attachInterrupt(digitalPinToInterrupt(encoder[2].clkPin), readEncoder2, RISING);
+  attachInterrupt(digitalPinToInterrupt(encoder[3].clkPin), readEncoder3, RISING);
 }
 
 void velFilterInit()
@@ -83,7 +133,7 @@ void pidInit()
 // unsigned long sensorUpdateTime, sensorUpdateTimeInterval = 500;
 unsigned long serialLoopTime, serialLoopTimeInterval = 5000;
 unsigned long pidTime, pidTimeInterval = 5000;
-unsigned long pidStopTime[2], pidStopTimeInterval = 1000000;
+unsigned long pidStopTime[num_of_motors], pidStopTimeInterval = 1000000;
 //---------------------------------------------------------------------------------------------
 
 void setup()
@@ -131,12 +181,12 @@ void loop()
   // Sensor update loop
   // if ((now_us - sensorUpdateTime) >= sensorUpdateTimeInterval)
   // {
-    for (int i = 0; i < num_of_motors; i += 1)
-    {
-      encoder[i].resetAngVelToZero();
-      unfilteredVel[i] = encoder[i].getAngVel();
-      filteredVel[i] = velFilter[i].filter(unfilteredVel[i]);
-    }
+  for (int i = 0; i < num_of_motors; i += 1)
+  {
+    encoder[i].resetAngVelToZero();
+    unfilteredVel[i] = encoder[i].getAngVel();
+    filteredVel[i] = velFilter[i].filter(unfilteredVel[i]);
+  }
   //   sensorUpdateTime = now_us;
   // }
 
@@ -189,7 +239,7 @@ void loop()
         output[i] = 0.00;
         if (!pidMode[i])
           motor[i].sendPWM(0);
-          pidMode[i] = 1;
+        pidMode[i] = 1;
         isMotorCommanded[i] = 0;
       }
     }
