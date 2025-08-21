@@ -8,8 +8,13 @@ if __name__ == '__main__':
   
   time.sleep(2.0)
 
+  # left wheels
   epmcV2.writeSpeed(0, 0.00)
+  epmcV2.writeSpeed(2, 0.00)
+
+  # right wheels
   epmcV2.writeSpeed(1, 0.00)
+  epmcV2.writeSpeed(3, 0.00)
 
   epmcV2.setCmdTimeout(4000)
   timeout = epmcV2.getCmdTimeout()
@@ -26,8 +31,14 @@ if __name__ == '__main__':
   sendHigh = True
 
 
+  # left wheels
   epmcV2.writeSpeed(0, lowTargetVel)
+  epmcV2.writeSpeed(2, lowTargetVel)
+
+  # right wheels
   epmcV2.writeSpeed(1, lowTargetVel)
+  epmcV2.writeSpeed(3, lowTargetVel)
+
   sendHigh = True
 
   prevTime = time.time()
@@ -36,12 +47,24 @@ if __name__ == '__main__':
   while True:
     if time.time() - ctrlPrevTime > ctrlSampleTime:
       if sendHigh:
+        # left wheels
         epmcV2.writeSpeed(0, highTargetVel)
+        epmcV2.writeSpeed(2, highTargetVel)
+
+        # right wheels
         epmcV2.writeSpeed(1, highTargetVel)
+        epmcV2.writeSpeed(3, highTargetVel)
+
         sendHigh = False
       else:
+        # left wheels
         epmcV2.writeSpeed(0, lowTargetVel)
+        epmcV2.writeSpeed(2, lowTargetVel)
+
+        # right wheels
         epmcV2.writeSpeed(1, lowTargetVel)
+        epmcV2.writeSpeed(3, lowTargetVel)
+
         sendHigh = True
       
       ctrlPrevTime = time.time()
@@ -50,14 +73,28 @@ if __name__ == '__main__':
 
     if time.time() - prevTime > sampleTime:
       try:
+        # left wheels
         angPos0 = epmcV2.readPos(0)
         angVel0 = epmcV2.readVel(0)
 
+        angPos2 = epmcV2.readPos(2)
+        angVel2 = epmcV2.readVel(2)
+
+        # right wheels
         angPos1 = epmcV2.readPos(1)
         angVel1 = epmcV2.readVel(1)
+
+        angPos3 = epmcV2.readPos(3)
+        angVel3 = epmcV2.readVel(3)
         
+        print("LEFT WHEELS READING")
         print(f"motor0_readings: [{angPos0}, {angVel0}]")
+        print(f"motor2_readings: [{angPos2}, {angVel2}]")
+
+        print("RIGHT WHEELS READING")
         print(f"motor1_readings: [{angPos1}, {angVel1}]")
+        print(f"motor3_readings: [{angPos3}, {angVel3}]")
+
         print("")
       except:
         pass
