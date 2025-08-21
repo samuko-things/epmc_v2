@@ -12,34 +12,34 @@ class g():
 
   i2cAddress = None
 
-  motorTestPwm = [0, 0] 
-  motorTestDuration = [durationList[1], durationList[1]]
+  motorTestPwm = [0, 0, 0, 0] 
+  motorTestDuration = [durationList[1], durationList[1], durationList[1], durationList[1]]
   
-  motorInitialTheta = [-90, -90]
-  motorTheta = [0.0, 0.0]
+  motorInitialTheta = [-90, -90, -90, -90]
+  motorTheta = [0.0, 0.0, 0.0, 0.0]
 
-  motorPPR = [1.0, 1.0]
-  motorDirConfig = [1, 1]
-  motorDirConfigText = [dirConfigTextList[0], dirConfigTextList[1]]
+  motorPPR = [1000.0, 1000.0, 1000.0, 1000.0]
+  motorDirConfig = [1, 1, 1, 1]
+  motorDirConfigText = [dirConfigTextList[0], dirConfigTextList[0], dirConfigTextList[0], dirConfigTextList[0]]
 
-  motorStartTime = [time.time(), time.time()]
-  motorIsOn = [False, False]
+  motorStartTime = [time.time(), time.time(), time.time(), time.time()]
+  motorIsOn = [False, False, False, False]
 
-  motorAngPos = [0.0, 0.0]
-  motorAngVel = [0.0, 0.0]
+  motorAngPos = [0.0, 0.0, 0.0, 0.0]
+  motorAngVel = [0.0, 0.0, 0.0, 0.0]
 
 
-  motorKp = [0.0, 0.0]
-  motorKi = [0.0, 0.0]
-  motorKd = [0.0, 0.0]
-  motorCf = [0.0, 0.0]
+  motorKp = [0.0, 0.0, 0.0, 0.0]
+  motorKi = [0.0, 0.0, 0.0, 0.0]
+  motorKd = [0.0, 0.0, 0.0, 0.0]
+  motorCf = [0.0, 0.0, 0.0, 0.0]
 
-  motorMaxVel = [20.0, 20.0]
-  motorTargetMaxVel = [0.0, 0.0]
-  motorTestSignal = [signalList[0], signalList[0]]
+  motorMaxVel = [10.0, 10.0, 10.0, 10.0]
+  motorTargetMaxVel = [0.0, 0.0, 0.0, 0.0]
+  motorTestSignal = [signalList[0], signalList[0], signalList[0], signalList[0]]
 
-  motorTargetVel = [0.0, 0.0]
-  motorActualVel = [0.0, 0.0]
+  motorTargetVel = [0.0, 0.0, 0.0, 0.0]
+  motorActualVel = [0.0, 0.0, 0.0, 0.0]
   #######################################################
 
 

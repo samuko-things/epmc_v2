@@ -162,7 +162,7 @@ void setup()
   for (int i = 0; i < num_of_motors; i += 1)
   {
     pidStopTime[i] = now_us;
-    cmdVelTimeout[i] = millis();
+    cmdVelTimeout[i] = now_us;
     isMotorCommanded[i] = 0;
   }
 }

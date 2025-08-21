@@ -42,7 +42,7 @@ void recieve_and_send_data(){
     if (dataMsgBufferArray[0] != "")
     {
       int motor_no = dataMsgBufferArray[1].toInt();
-      bool motor_no_not_found = (motor_no < 0) || (motor_no > 1);
+      bool motor_no_not_found = (motor_no < 0) || (motor_no > (num_of_motors-1));
 
       digitalWrite(LED_BUILTIN, HIGH);
 

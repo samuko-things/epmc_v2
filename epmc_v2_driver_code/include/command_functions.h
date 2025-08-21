@@ -8,7 +8,6 @@
 #include "encoder_setup.h"
 #include "adaptive_low_pass_filter.h"
 #include "simple_pid_control.h"
-// #include "parameter_store.h"
 
 //--------------- global variables -----------------//
 const int num_of_motors = 4;
