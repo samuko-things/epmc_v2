@@ -8,7 +8,6 @@ class L298NMotorControl {
 
     void sendPWM(int pwmVal);
     int getDirection();
-    void test();
 
   private:
     int in1Pin, in2Pin, enPin;

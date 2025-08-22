@@ -149,6 +149,9 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
 
+  analogWriteResolution(8); // 8 Bit resolution
+  analogWriteFrequency(1000); // 1kHz
+
   encoderInit();
   velFilterInit();
   pidInit();
