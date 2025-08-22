@@ -12,22 +12,22 @@ public:
   volatile long tickCount;
   volatile int8_t dir;
   int clkPin, dirPin;
-  float pulsePerRev;
+  double pulsePerRev;
   unsigned long periodPerTick;
   unsigned long stopPeriodPerTick;
   volatile unsigned long oldTickTime;
-  volatile float freqPerTick;
+  volatile double freqPerTick;
 
-  QuadEncoder(int clk_pin, int dir_pin, float ppr);
+  QuadEncoder(int clk_pin, int dir_pin, double ppr);
 
-  void setPulsePerRev(float ppr);
-  void setZeroPeriodPerTick(float zeroVel);
-  float getAngPos();
-  float getAngVel();
+  void setPulsePerRev(double ppr);
+  void setZeroPeriodPerTick(double zeroVel);
+  double getAngPos();
+  double getAngVel();
   void resetAngVelToZero();
 
 private:
-  float prevTickCount;
+  double prevTickCount;
   
 };
 
@@ -35,7 +35,7 @@ private:
 
 
 
-QuadEncoder::QuadEncoder(int clk_pin, int dir_pin, float ppr)
+QuadEncoder::QuadEncoder(int clk_pin, int dir_pin, double ppr)
 {
   clkPin = clk_pin;
   dirPin = dir_pin;
@@ -51,25 +51,25 @@ QuadEncoder::QuadEncoder(int clk_pin, int dir_pin, float ppr)
   oldTickTime = micros();
 }
 
-void QuadEncoder::setPulsePerRev(float ppr)
+void QuadEncoder::setPulsePerRev(double ppr)
 {
   pulsePerRev = ppr;
 }
 
-float QuadEncoder::getAngPos()
+double QuadEncoder::getAngPos()
 {
   portENTER_CRITICAL(&encoderMux);
   long ticks = tickCount;
   portEXIT_CRITICAL(&encoderMux);
-  return (2.00 * PI * (float)ticks) / pulsePerRev;
+  return (2.00 * PI * (double)ticks) / pulsePerRev;
 }
 
-float QuadEncoder::getAngVel()
+double QuadEncoder::getAngVel()
 {
-  float ang_vel;
+  double ang_vel;
 
   portENTER_CRITICAL(&encoderMux);
-  float direction = (float)dir;
+  double direction = (double)dir;
   unsigned long dt = periodPerTick;
   portEXIT_CRITICAL(&encoderMux);
 
@@ -77,7 +77,7 @@ float QuadEncoder::getAngVel()
     return 0.0;
   }
 
-  float frequency = 1e6 / ((float)dt * pulsePerRev);
+  double frequency = 1e6 / ((double)dt * pulsePerRev);
   ang_vel = direction * 2.00 * PI * frequency;
   return ang_vel;
 }
@@ -94,7 +94,7 @@ void QuadEncoder::resetAngVelToZero()
   portEXIT_CRITICAL(&encoderMux);
 }
 
-void QuadEncoder::setZeroPeriodPerTick(float zeroVel)
+void QuadEncoder::setZeroPeriodPerTick(double zeroVel)
 {
   stopPeriodPerTick = (unsigned long)((4.0 * PI * 1e6)/(pulsePerRev*zeroVel));
 }

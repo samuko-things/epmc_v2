@@ -85,7 +85,7 @@ void recieve_and_send_data(){
           if (motor_no_not_found)
             sendMsg = "0";
           else
-            sendMsg = writeSpeed(motor_no, dataMsgBufferArray[2].toFloat());
+            sendMsg = writeSpeed(motor_no, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -119,7 +119,7 @@ void recieve_and_send_data(){
           if (motor_no_not_found)
             sendMsg = "0";
           else
-            sendMsg = setEncoderPPR(motor_no, dataMsgBufferArray[2].toFloat());
+            sendMsg = setEncoderPPR(motor_no, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -136,7 +136,7 @@ void recieve_and_send_data(){
           if (motor_no_not_found)
             sendMsg = String(motor_no);
           else
-            sendMsg = setMotorKp(motor_no, dataMsgBufferArray[2].toFloat());
+            sendMsg = setMotorKp(motor_no, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -153,7 +153,7 @@ void recieve_and_send_data(){
           if (motor_no_not_found)
             sendMsg = "0";
           else
-            sendMsg = setMotorKi(motor_no, dataMsgBufferArray[2].toFloat());
+            sendMsg = setMotorKi(motor_no, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -170,7 +170,7 @@ void recieve_and_send_data(){
           if (motor_no_not_found)
             sendMsg = "0";
           else
-            sendMsg = setMotorKd(motor_no, dataMsgBufferArray[2].toFloat());
+            sendMsg = setMotorKd(motor_no, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -187,7 +187,7 @@ void recieve_and_send_data(){
           if (motor_no_not_found)
             sendMsg = "0";
           else
-            sendMsg = setRdir(motor_no, dataMsgBufferArray[2].toFloat());
+            sendMsg = setRdir(motor_no, dataMsgBufferArray[2].toInt());
         }
         Serial.println(sendMsg);
       }
@@ -204,7 +204,7 @@ void recieve_and_send_data(){
           if (motor_no_not_found)
             sendMsg = "0";
           else
-            sendMsg = setCutoffFreq(motor_no, dataMsgBufferArray[2].toFloat());
+            sendMsg = setCutoffFreq(motor_no, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -221,7 +221,7 @@ void recieve_and_send_data(){
           if (motor_no_not_found)
             sendMsg = "0";
           else
-            sendMsg = setMaxVel(motor_no, dataMsgBufferArray[2].toFloat());
+            sendMsg = setMaxVel(motor_no, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }

@@ -16,18 +16,18 @@ if __name__ == '__main__':
   epmcV2.writeSpeed(1, 0.00)
   epmcV2.writeSpeed(3, 0.00)
 
-  epmcV2.setCmdTimeout(4000)
-  timeout = epmcV2.getCmdTimeout()
-  print("command timeout in ms: ", timeout)
+  # epmcV2.setCmdTimeout(0)
+  # timeout = epmcV2.getCmdTimeout()
+  # print("command timeout in ms: ", timeout)
 
-  lowTargetVel = -3.142 # in rad/sec
+  lowTargetVel = 0.00 # in rad/sec
   highTargetVel = 3.142 # in rad/sec
 
   prevTime = None
   sampleTime = 0.05
 
   ctrlPrevTime = None
-  ctrlSampleTime = 5.0
+  ctrlSampleTime = 4.0
   sendHigh = True
 
 

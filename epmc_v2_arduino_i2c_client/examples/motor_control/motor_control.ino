@@ -30,7 +30,7 @@ bool isSuccessful;
 float angPos0, angPos1, angPos2, angPos3; // (in rad)
 float angVel0, angVel1, angVel2, angVel3; // (in rad/sec)
 
-float lowTargetVel = -1.57;  // rad/sec
+float lowTargetVel = 0.00;  // rad/sec
 float highTargetVel = 1.57; // rad/sec
 bool sendHigh = true;
 
@@ -38,7 +38,7 @@ long prevTime;
 long sampleTime = 100; // millisec
 
 long ctrlPrevTime;
-long ctrlSampleTime = 5000; // millisec
+long ctrlSampleTime = 4000; // millisec
 
 void setup()
 {
@@ -58,11 +58,11 @@ void setup()
   epmcv2.writeSpeed(1, 0.00);
   epmcv2.writeSpeed(3, 0.00);
 
-  int cmd_vel_timeout = 4000; // 0 to deactivate.
-  epmcv2.setCmdTimeout(cmd_vel_timeout); // set motor command velocity timeout
-  epmcv2.getCmdTimeout(cmd_vel_timeout); // get the stored command velocity timeout
-  Serial.print("motor command vel timeout in ms: ");
-  Serial.println(cmd_vel_timeout);
+  // int cmd_vel_timeout = 0; // 0 to deactivate.
+  // epmcv2.setCmdTimeout(cmd_vel_timeout); // set motor command velocity timeout
+  // epmcv2.getCmdTimeout(cmd_vel_timeout); // get the stored command velocity timeout
+  // Serial.print("motor command vel timeout in ms: ");
+  // Serial.println(cmd_vel_timeout);
 
   // left wheels (motor 0 and motor 2)
   epmcv2.writeSpeed(0, lowTargetVel);

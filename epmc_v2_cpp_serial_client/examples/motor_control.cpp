@@ -21,19 +21,19 @@ int main(int argc, char **argv)
 
   bool sendHigh = false;
 
-  float lowTargetVel = -1.57; // in rad/sec
-  float highTargetVel = 1.57; // in rad/sec
+  float lowTargetVel = 0.00; // in rad/sec
+  float highTargetVel = 3.142; // in rad/sec
 
   float angPos0, angPos1, angPos2, angPos3;
   float angVel0, angVel1, angVel2, angVel3;
 
   auto prevTime = std::chrono::system_clock::now();
   std::chrono::duration<double> duration;
-  float sampleTime = 0.02;
+  float sampleTime = 0.05;
 
   auto ctrlPrevTime = std::chrono::system_clock::now();
   std::chrono::duration<double> ctrlDuration;
-  float ctrlSampleTime = 5.0;
+  float ctrlSampleTime = 4.0;
 
   // std::string port = "/dev/serial/by-path/pci-0000:00:14.0-usb-0:1.4:1.0-port0";
   std::string port = "/dev/ttyUSB0";
@@ -49,10 +49,10 @@ int main(int argc, char **argv)
   epmcV2.writeSpeed(1, 0.00);
   epmcV2.writeSpeed(3, 0.00);
 
-  int motor_cmd_timeout_ms = 4000;
-  epmcV2.setCmdTimeout(motor_cmd_timeout_ms); // set motor command timeout
-  epmcV2.getCmdTimeout(motor_cmd_timeout_ms);
-  std::cout << "motor command timeout: " << motor_cmd_timeout_ms << " ms" << std::endl;
+  // int motor_cmd_timeout_ms = 0;
+  // epmcV2.setCmdTimeout(motor_cmd_timeout_ms); // set motor command timeout
+  // epmcV2.getCmdTimeout(motor_cmd_timeout_ms);
+  // std::cout << "motor command timeout: " << motor_cmd_timeout_ms << " ms" << std::endl;
 
   // left wheels (motor 0 and motor 2)
   epmcV2.writeSpeed(0, lowTargetVel);

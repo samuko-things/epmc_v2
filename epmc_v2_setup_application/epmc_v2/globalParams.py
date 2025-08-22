@@ -2,7 +2,7 @@ import time
 from math import sin, pi
 
 class g():
-  dirConfigTextList = ['forward', 'reverse']
+  dirConfigTextList = ['left wheel', 'right wheel']
   durationList = [5,10, 15, 20] # in sec
   signalList = ["step", "square", "sine"]
 

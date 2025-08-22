@@ -28,7 +28,7 @@ L298NMotorControl motor[num_of_motors] = {
   L298NMotorControl(IN1_3, IN2_3, EN_3) // motor 3
 };
 
-float enc_ppr[num_of_motors]={
+double enc_ppr[num_of_motors]={
   1000.0, // motor 0 encoder pulse per revolution parameter
   1000.0, // motor 1 encoder pulse per revolution parameter
   1000.0, // motor 2 encoder pulse per revolution parameter
@@ -53,11 +53,11 @@ QuadEncoder encoder[num_of_motors] = {
 
 // adaptive lowpass Filter
 const int filterOrder = 1;
-float cutOffFreq[num_of_motors] = {
-  1.0, // motor 0 velocity filter cutoff frequency
-  1.0, // motor 1 velocity filter cutoff frequency
-  1.0, // motor 2 velocity filter cutoff frequency
-  1.0 // motor 3 velocity filter cutoff frequency
+double cutOffFreq[num_of_motors] = {
+  1.5, // motor 0 velocity filter cutoff frequency
+  1.5, // motor 1 velocity filter cutoff frequency
+  1.5, // motor 2 velocity filter cutoff frequency
+  1.5 // motor 3 velocity filter cutoff frequency
 };
 
 AdaptiveLowPassFilter velFilter[num_of_motors] = {
@@ -67,14 +67,14 @@ AdaptiveLowPassFilter velFilter[num_of_motors] = {
   AdaptiveLowPassFilter(filterOrder, cutOffFreq[3]) // motor 1 velocity filter
 };
 
-float filteredVel[num_of_motors] = {
+double filteredVel[num_of_motors] = {
   0.0,
   0.0,
   0.0,
   0.0
 };
 
-float unfilteredVel[num_of_motors] = {
+double unfilteredVel[num_of_motors] = {
   0.0,
   0.0,
   0.0,
@@ -82,37 +82,37 @@ float unfilteredVel[num_of_motors] = {
 };
 
 // motor PID parameters
-float outMin = -255.0, outMax = 255.0;
+double outMin = -255.0, outMax = 255.0;
 
-float kp[num_of_motors] = {
+double kp[num_of_motors] = {
   0.0,
   0.0,
   0.0,
   0.0
 };
 
-float ki[num_of_motors] = {
+double ki[num_of_motors] = {
   0.0,
   0.0,
   0.0,
   0.0
 };
 
-float kd[num_of_motors] = {
+double kd[num_of_motors] = {
   0.0,
   0.0,
   0.0,
   0.0
 };
 
-float target[num_of_motors] = {
+double target[num_of_motors] = {
   0.0,
   0.0,
   0.0,
   0.0
 };
 
-float output[num_of_motors] = {
+double output[num_of_motors] = {
   0.0,
   0.0,
   0.0,
@@ -129,10 +129,10 @@ SimplePID pidMotor[num_of_motors] = {
 
 // check if in PID or PWM mode
 int pidMode[num_of_motors] = {
-  1,
-  1,
-  1,
-  1
+  0,
+  0,
+  0,
+  0
 }; // 1-PID MODE, 0-SETUP/PWM MODE
 
 int isMotorCommanded[num_of_motors] = {
@@ -142,15 +142,15 @@ int isMotorCommanded[num_of_motors] = {
   0
 };
 
-float rdir[num_of_motors] = {
-  1.0,
-  1.0,
-  1.0,
-  1.0
+int rdir[num_of_motors] = {
+  1,
+  1,
+  1,
+  1
 };
 
 // // maximum motor velocity that can be commanded
-float maxVel[num_of_motors] = {
+double maxVel[num_of_motors] = {
   10.0,
   10.0,
   10.0,
@@ -232,13 +232,13 @@ void resetParamsInStorage(){
   storage.begin(params_ns, false);
 
   for (int i=0; i<num_of_motors; i+=1){
-    storage.putFloat(ppr_key[i], 1000.0);
-    storage.putFloat(kp_key[i], 0.0);
-    storage.putFloat(ki_key[i], 0.0);
-    storage.putFloat(kd_key[i], 0.0);
-    storage.putFloat(cf_key[i], 1.0);
-    storage.putFloat(rdir_key[i], 1.0);
-    storage.putFloat(maxVel_key[i], 10.0);
+    storage.putDouble(ppr_key[i], 1000.0);
+    storage.putDouble(kp_key[i], 0.0);
+    storage.putDouble(ki_key[i], 0.0);
+    storage.putDouble(kd_key[i], 0.0);
+    storage.putDouble(cf_key[i], 1.5);
+    storage.putInt(rdir_key[i], 1);
+    storage.putDouble(maxVel_key[i], 10.0);
   }
   storage.putUChar(i2cAddress_key, 0x55);
 
@@ -267,13 +267,13 @@ void loadStoredParams(){
   storage.begin(params_ns, true);
 
   for (int i=0; i<num_of_motors; i+=1){
-    enc_ppr[i] = storage.getFloat(ppr_key[i], 1000.0);
-    kp[i] = storage.getFloat(kp_key[i], 0.0);
-    ki[i] = storage.getFloat(ki_key[i], 0.0);
-    kd[i] = storage.getFloat(kd_key[i], 0.0);
-    cutOffFreq[i] = storage.getFloat(cf_key[i], 1.0);
-    rdir[i] = storage.getFloat(rdir_key[i], 1.0);
-    maxVel[i] = storage.getFloat(maxVel_key[i], 10.0);
+    enc_ppr[i] = storage.getDouble(ppr_key[i], 1000.0);
+    kp[i] = storage.getDouble(kp_key[i], 0.0);
+    ki[i] = storage.getDouble(ki_key[i], 0.0);
+    kd[i] = storage.getDouble(kd_key[i], 0.0);
+    cutOffFreq[i] = storage.getDouble(cf_key[i], 1.5);
+    rdir[i] = storage.getInt(rdir_key[i], 1);
+    maxVel[i] = storage.getDouble(maxVel_key[i], 10.0);
   }
   i2cAddress = storage.getUChar(i2cAddress_key, 0x55);
 
@@ -289,24 +289,24 @@ void loadStoredParams(){
 //--------------- global functions ----------------//
 
 String readPos(int motor_no){
-  float posData = encoder[motor_no].getAngPos();
+  double posData = encoder[motor_no].getAngPos();
   String data = String(rdir[motor_no] * posData, 3);
   return data;
 }
 
 String readVel(int motor_no){
-  String data = String(rdir[motor_no] * filteredVel[motor_no], 4);
+  String data = String((double)rdir[motor_no] * filteredVel[motor_no], 4);
   data += ",";
-  data += String(rdir[motor_no] * unfilteredVel[motor_no], 4);
+  data += String((double)rdir[motor_no] * unfilteredVel[motor_no], 4);
   return data;
 }
 
 
 String readPidVel(int motor_no)
 {
-  String data = String(rdir[motor_no] * target[motor_no], 4);
+  String data = String((double)rdir[motor_no] * target[motor_no], 4);
   data += ",";
-  data += String(rdir[motor_no] * filteredVel[motor_no], 4);
+  data += String((double)rdir[motor_no] * filteredVel[motor_no], 4);
   return data;
 }
 
@@ -324,17 +324,19 @@ String writePWM(int motor_no, int pwm)
     p = pwm;
   isMotorCommanded[motor_no] = 1;
   if (p == 0) isMotorCommanded[motor_no] = 0;
-  motor[motor_no].sendPWM((int)rdir[motor_no] * p);
+  motor[motor_no].sendPWM(rdir[motor_no] * p);
+
+  cmdVelTimeout[motor_no] = millis();
   
   return "1";
 }
 
 
-String writeSpeed(int motor_no, float targetVel)
+String writeSpeed(int motor_no, double targetVel)
 {
   pidMode[motor_no] = 1;
 
-  float vel;
+  double vel;
   if (targetVel > maxVel[motor_no]){
     vel = maxVel[motor_no];
   }
@@ -345,8 +347,10 @@ String writeSpeed(int motor_no, float targetVel)
     vel = targetVel;
   }
     
-  target[motor_no] = rdir[motor_no] * vel;
+  target[motor_no] = (double)rdir[motor_no] * vel;
   isMotorCommanded[motor_no] = 1;
+
+  cmdVelTimeout[motor_no] = millis();
 
   return "1";
 }
@@ -366,11 +370,11 @@ String getPidModeFunc(int motor_no)
 }
 
 
-String setEncoderPPR(int motor_no, float ppr)
+String setEncoderPPR(int motor_no, double ppr)
 {
   enc_ppr[motor_no] = ppr;
   storage.begin(params_ns, false);
-  storage.putFloat(ppr_key[motor_no], enc_ppr[motor_no]);
+  storage.putDouble(ppr_key[motor_no], enc_ppr[motor_no]);
   storage.end();
   encoder[motor_no].setPulsePerRev(enc_ppr[motor_no]);
   return "1";
@@ -381,11 +385,11 @@ String getEncoderPPR(int motor_no)
 }
 
 
-String setMotorKp(int motor_no, float Kp)
+String setMotorKp(int motor_no, double Kp)
 {
   kp[motor_no] = Kp;
   storage.begin(params_ns, false);
-  storage.putFloat(kp_key[motor_no], kp[motor_no]);
+  storage.putDouble(kp_key[motor_no], kp[motor_no]);
   storage.end();
   pidMotor[motor_no].setKp(kp[motor_no]);
   pidMotor[motor_no].begin();
@@ -397,11 +401,11 @@ String getMotorKp(int motor_no)
 }
 
 
-String setMotorKi(int motor_no, float Ki)
+String setMotorKi(int motor_no, double Ki)
 {
   ki[motor_no] = Ki;
   storage.begin(params_ns, false);
-  storage.putFloat(ki_key[motor_no], ki[motor_no]);
+  storage.putDouble(ki_key[motor_no], ki[motor_no]);
   storage.end();
   pidMotor[motor_no].setKi(ki[motor_no]);
   pidMotor[motor_no].begin();
@@ -413,11 +417,11 @@ String getMotorKi(int motor_no)
 }
 
 
-String setMotorKd(int motor_no, float Kd)
+String setMotorKd(int motor_no, double Kd)
 {
   kd[motor_no] = Kd;
   storage.begin(params_ns, false);
-  storage.putFloat(kd_key[motor_no], kd[motor_no]);
+  storage.putDouble(kd_key[motor_no], kd[motor_no]);
   storage.end();
   pidMotor[motor_no].setKd(kd[motor_no]);
   pidMotor[motor_no].begin();
@@ -429,28 +433,28 @@ String getMotorKd(int motor_no)
 }
 
 
-String setRdir(int motor_no, float dir)
+String setRdir(int motor_no, double dir)
 {
-  if (dir >= 0.0)
-    rdir[motor_no] = 1.0;
+  if (dir >= 0)
+    rdir[motor_no] = 1;
   else
-    rdir[motor_no] = -1.0;
+    rdir[motor_no] = -1;
   storage.begin(params_ns, false);
-  storage.putFloat(rdir_key[motor_no], rdir[motor_no]);
+  storage.putInt(rdir_key[motor_no], rdir[motor_no]);
   storage.end();
   return "1";
 }
 String getRdir(int motor_no)
 {
-  return String(rdir[motor_no], 1);
+  return String(rdir[motor_no]);
 }
 
 
-String setMaxVel(int motor_no, float max_vel)
+String setMaxVel(int motor_no, double max_vel)
 {
   maxVel[motor_no] = fabs(max_vel);
   storage.begin(params_ns, false);
-  storage.putFloat(maxVel_key[motor_no], maxVel[motor_no]);
+  storage.putDouble(maxVel_key[motor_no], maxVel[motor_no]);
   storage.end();
   return "1";
 }
@@ -460,11 +464,11 @@ String getMaxVel(int motor_no)
 }
 
 
-String setCutoffFreq(int motor_no, float f0)
+String setCutoffFreq(int motor_no, double f0)
 {
   cutOffFreq[motor_no] = f0;
   storage.begin(params_ns, false);
-  storage.putFloat(cf_key[motor_no], cutOffFreq[motor_no]);
+  storage.putDouble(cf_key[motor_no], cutOffFreq[motor_no]);
   storage.end();
   velFilter[motor_no].setCutOffFreq(cutOffFreq[motor_no]);
   return "1";
@@ -478,19 +482,23 @@ String getCutoffFreq(int motor_no)
 String setCmdTimeout(int timeout_ms)
 {
   unsigned long cmdTimeout = timeout_ms;
-  if (cmdTimeout < 1000)
+  if (cmdTimeout < 10)
   {
     cmdVelTimeoutInterval = 0;
   }
   else
   {
-    cmdVelTimeoutInterval = cmdTimeout*1000;
+    cmdVelTimeoutInterval = cmdTimeout;
+    for (int i = 0; i < num_of_motors; i += 1)
+    {
+      cmdVelTimeout[i] = millis();
+    }
   }
   return "1";
 }
 String getCmdTimeout()
 {
-  return String(cmdVelTimeoutInterval/1000);
+  return String(cmdVelTimeoutInterval);
 }
 
 

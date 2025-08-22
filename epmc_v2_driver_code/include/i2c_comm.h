@@ -84,7 +84,7 @@ void onReceive(int dataSizeInBytes) {
         if (motor_no_not_found)
           i2cSendMsg = "0";
         else
-          i2cSendMsg = writeSpeed(motor_no, i2cDataMsgBufferArray[2].toFloat());
+          i2cSendMsg = writeSpeed(motor_no, i2cDataMsgBufferArray[2].toDouble());
       }
     }
 
