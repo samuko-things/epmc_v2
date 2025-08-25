@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "command_functions.h"
 #include "serial_comm.h"
-#include "i2c_comm.h"
 
 //------------------------------------------------------------------------------//
 void IRAM_ATTR readEncoder0()
@@ -127,12 +126,22 @@ void pidInit()
   }
 }
 
+void imuInit()
+{
+  imu.begin();
+
+  madgwickFilter.setAlgorithmGain(1.0);
+  madgwickFilter.setDriftBiasGain(0.05);
+  madgwickFilter.setWorldFrameId(0); // 0 - NWU, 1 - ENU, 2 - NED (I'm using NWU reference frame)
+}
+
 //---------------------------------------------------------------------------------------------
 // Timing variables in microseconds
 // please do not adjust any of the values as it can affect important operations
 unsigned long serialLoopTime, serialLoopTimeInterval = 5;
 unsigned long pidTime, pidTimeInterval = 5;
 unsigned long pidStopTime[num_of_motors], pidStopTimeInterval = 500;
+unsigned long readImuTime, readImuSampleTime = 20;        // ms -> (1000/sampleTime) hz
 //---------------------------------------------------------------------------------------------
 
 void setup()
@@ -142,9 +151,7 @@ void setup()
   Serial.begin(115200);
   Serial.setTimeout(2);
 
-  Wire.onReceive(onReceive);
-  Wire.onRequest(onRequest);
-  Wire.begin(i2cAddress);
+  Wire.begin();
 
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
@@ -155,6 +162,7 @@ void setup()
   encoderInit();
   velFilterInit();
   pidInit();
+  imuInit();
 
   // Initialize timing markers
   unsigned long now = millis();
@@ -166,6 +174,7 @@ void setup()
     cmdVelTimeout[i] = now;
     isMotorCommanded[i] = 0;
   }
+  readImuTime = now;
 }
 
 void loop()
@@ -241,5 +250,40 @@ void loop()
         isMotorCommanded[i] = 0;
       }
     }
+  }
+
+  if ((millis() - readImuTime) >= readImuSampleTime)
+  {
+    //------------READ ACC DATA (m/s^2) AND CALIBRATE---------------//
+    float axRaw = imu.readAccX_mps2(); // m/s²
+    float ayRaw = imu.readAccY_mps2(); // m/s²
+    float azRaw = imu.readAccZ_mps2(); // m/s²
+
+    axCal = axRaw - axOff;
+    ayCal = ayRaw - ayOff;
+    azCal = azRaw - azOff;
+    //------------------------------------------------------//
+
+    //-----------READ GYRO DATA (rad/s) AND CALIBRATE---------------//
+    float gxRaw = imu.readGyroX_rps(); // rad/s
+    float gyRaw = imu.readGyroY_rps(); // rad/s
+    float gzRaw = imu.readGyroZ_rps(); // rad/s
+
+    gxCal = gxRaw - gxOff;
+    gyCal = gyRaw - gyOff;
+    gzCal = gzRaw - gzOff;
+    //-----------------------------------------------------//
+
+    //-------- APPLY MADWICK FILTER IN NWU FRAME ----------//
+    madgwickFilter.madgwickAHRSupdateIMU(gxCal, gyCal, gzCal, axCal, ayCal, azCal);
+
+    //if you have a magnetometer use this:
+    //madgwickFilter.madgwickAHRSupdate(gxCal, gyCal, gzCal, axCal, ayCal, azCal, mxCal, myCal, mzCal);
+
+    madgwickFilter.getOrientationRPY(roll, pitch, yaw);
+    madgwickFilter.getOrientationQuat(qw, qx, qy, qz);
+    // ----------------------------------------------------//
+
+    readImuTime = millis(); 
   }
 }

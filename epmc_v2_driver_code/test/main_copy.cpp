@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "command_functions.h"
 #include "serial_comm.h"
-#include "i2c_comm.h"
 
 //------------------------------------------------------------------------------//
 void IRAM_ATTR readEncoder0()
@@ -130,10 +129,9 @@ void pidInit()
 //---------------------------------------------------------------------------------------------
 // Timing variables in microseconds
 // please do not adjust any of the values as it can affect important operations
-// unsigned long sensorUpdateTime, sensorUpdateTimeInterval = 500;
-unsigned long serialLoopTime, serialLoopTimeInterval = 5000;
-unsigned long pidTime, pidTimeInterval = 5000;
-unsigned long pidStopTime[num_of_motors], pidStopTimeInterval = 1000000;
+unsigned long serialLoopTime, serialLoopTimeInterval = 5;
+unsigned long pidTime, pidTimeInterval = 5;
+unsigned long pidStopTime[num_of_motors], pidStopTimeInterval = 500;
 //---------------------------------------------------------------------------------------------
 
 void setup()
@@ -143,55 +141,47 @@ void setup()
   Serial.begin(115200);
   Serial.setTimeout(2);
 
-  Wire.onReceive(onReceive);
-  Wire.onRequest(onRequest);
-  Wire.begin(i2cAddress);
-
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
+
+  analogWriteResolution(8); // 8 Bit resolution
+  analogWriteFrequency(1000); // 1kHz
 
   encoderInit();
   velFilterInit();
   pidInit();
 
   // Initialize timing markers
-  unsigned long now_us = micros();
-  // sensorUpdateTime = now_us;
-  serialLoopTime = now_us;
-  pidTime = now_us;
+  unsigned long now = millis();
+  serialLoopTime = now;
+  pidTime = now;
   for (int i = 0; i < num_of_motors; i += 1)
   {
-    pidStopTime[i] = now_us;
-    cmdVelTimeout[i] = now_us;
+    pidStopTime[i] = now;
+    cmdVelTimeout[i] = now;
     isMotorCommanded[i] = 0;
   }
 }
 
 void loop()
 {
-  unsigned long now_us = micros();
-
   // Serial comm loop
-  if ((now_us - serialLoopTime) >= serialLoopTimeInterval)
+  if ((millis() - serialLoopTime) >= serialLoopTimeInterval)
   {
     recieve_and_send_data();
-    serialLoopTime = now_us;
+    serialLoopTime = millis();
   }
 
-  // Sensor update loop
-  // if ((now_us - sensorUpdateTime) >= sensorUpdateTimeInterval)
-  // {
+  // Sensor update
   for (int i = 0; i < num_of_motors; i += 1)
   {
     encoder[i].resetAngVelToZero();
     unfilteredVel[i] = encoder[i].getAngVel();
     filteredVel[i] = velFilter[i].filter(unfilteredVel[i]);
   }
-  //   sensorUpdateTime = now_us;
-  // }
 
   // PID control loop
-  if ((now_us - pidTime) >= pidTimeInterval)
+  if ((millis() - pidTime) >= pidTimeInterval)
   {
     for (int i = 0; i < num_of_motors; i += 1)
     {
@@ -201,7 +191,7 @@ void loop()
         motor[i].sendPWM((int)output[i]);
       }
     }
-    pidTime = now_us;
+    pidTime = millis();
   }
 
   // check to see if motor has stopped
@@ -210,16 +200,18 @@ void loop()
     int target_int = (int)fabs(target[i]) * 1000;
     if (target_int < 10 && pidMode[i])
     {
-      if ((now_us - pidStopTime[i]) >= pidStopTimeInterval)
+      if ((millis() - pidStopTime[i]) >= pidStopTimeInterval)
       {
         pidMotor[i].begin();
         isMotorCommanded[i] = 0;
-        pidStopTime[i] = now_us;
+        pidMode[i] = 0;
+        motor[i].sendPWM(0);
+        pidStopTime[i] = millis();
       }
     }
     else
     {
-      pidStopTime[i] = now_us;
+      pidStopTime[i] = millis();
     }
   }
 
@@ -231,15 +223,16 @@ void loop()
     {
       if (!isMotorCommanded[i])
       {
-        cmdVelTimeout[i] = now_us;
+        cmdVelTimeout[i] = millis();
       }
-      if (isMotorCommanded[i] && ((now_us - cmdVelTimeout[i]) >= cmdVelTimeoutInterval))
+      if (isMotorCommanded[i] && ((millis() - cmdVelTimeout[i]) >= cmdVelTimeoutInterval))
       {
-        target[i] = 0.00;
-        output[i] = 0.00;
-        if (!pidMode[i])
+        if(pidMode[i]){
+          target[i] = 0.000;
+        }
+        else {
           motor[i].sendPWM(0);
-        pidMode[i] = 1;
+        }
         isMotorCommanded[i] = 0;
       }
     }

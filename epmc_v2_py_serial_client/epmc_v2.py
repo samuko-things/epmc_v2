@@ -33,6 +33,10 @@ class EPMC_V2:
             return float(data[0])
         elif len(data)==2:
             return float(data[0]), float(data[1])
+        elif len(data)==3:
+            return float(data[0]), float(data[1]), float(data[2])
+        elif len(data)==4:
+            return float(data[0]), float(data[1]), float(data[2]), float(data[3])
         
     def readPos(self, motor_no):
         pos = self.get("/pos", motor_no)
@@ -69,3 +73,19 @@ class EPMC_V2:
     def getPidMode(self, motor_no):
         mode = self.get("/mode", motor_no)
         return mode
+    
+    def readRPY(self):
+        r, p, y = self.get("/rpy", -1)
+        return r, p, y
+    
+    def readAcc(self):
+        ax, ay, az = self.get("/acc", -1)
+        return ax, ay, az
+    
+    def readGyro(self):
+        gx, gy, gz = self.get("/gyro", -1)
+        return gx, gy, gz
+    
+    def readQuat(self):
+        qw, qx, qy, qz = self.get("/quat", -1)
+        return qw, qx, qy, qz

@@ -237,20 +237,33 @@ void recieve_and_send_data(){
         Serial.println(sendMsg);
       }
 
-      else if (dataMsgBufferArray[0] == "/i2c")
-      {
-        if (dataMsgBufferArray[2] == ""){
-          sendMsg = getI2cAddress();
-        }
-        else {
-          sendMsg = setI2cAddress(dataMsgBufferArray[2].toInt());
-        }
-        Serial.println(sendMsg);
-      }
-
       else if (dataMsgBufferArray[0] == "/reset")
       {
         sendMsg = triggerResetParams();
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/rpy")
+      {
+        sendMsg = readRPY();
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/quat")
+      {
+        sendMsg = readQuat();
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/acc")
+      {
+        sendMsg = readAcc();
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/gyro")
+      {
+        sendMsg = readGyro();
         Serial.println(sendMsg);
       }
 

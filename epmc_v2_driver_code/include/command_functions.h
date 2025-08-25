@@ -2,12 +2,13 @@
 #define COMMAND_FUNCTIONS_H
 
 #include <Arduino.h>
-#include <Wire.h>
 #include <Preferences.h>
 #include "l298n_motor_control.h"
 #include "encoder_setup.h"
 #include "adaptive_low_pass_filter.h"
 #include "simple_pid_control.h"
+#include "mpu6050.h"
+#include <imu_madgwick_filter.h>
 
 //--------------- global variables -----------------//
 const int num_of_motors = 4;
@@ -167,6 +168,39 @@ uint8_t i2cAddress = 0x55;
 // for stored initialization and reset
 bool firstLoad = false;
 //-------------------------------------------------//
+
+
+//-------------- IMU MPU6050 ---------------------//
+float axOff = 0.0;
+float ayOff = 0.0;
+float azOff = 0.0;
+
+float gxOff = 0.0;
+float gyOff = 0.0;
+float gzOff = 0.0;
+
+float axCal = 0.00;
+float ayCal = 0.00;
+float azCal = 0.00;
+
+float gxCal = 0.00;
+float gyCal = 0.00;
+float gzCal = 0.00;
+
+float roll = 0.00;
+float pitch = 0.00;
+float yaw = 0.00;
+
+float qw = 0.00;
+float qx = 0.00;
+float qy = 0.00;
+float qz = 0.00;
+
+float filterGain = 1.0;
+
+MPU6050 imu;
+ImuMadgwickFilter madgwickFilter;
+//------------------------------------------------//
 
 
 
@@ -501,26 +535,6 @@ String getCmdTimeout()
   return String(cmdVelTimeoutInterval);
 }
 
-
-String setI2cAddress(int address)
-{
-  if((address <= 0) || (address > 255)){
-    return "0";
-  }
-  else {
-    i2cAddress = (uint8_t)address;
-    storage.begin(params_ns, false);
-    storage.putUChar(i2cAddress_key, i2cAddress);
-    storage.end();
-    Wire.begin(i2cAddress);
-    return "1";
-  }
-}
-String getI2cAddress()
-{
-  return String(i2cAddress);
-}
-
 String triggerResetParams()
 {
   storage.begin(params_ns, false);
@@ -531,6 +545,53 @@ String triggerResetParams()
   loadStoredParams();
   return "1";
 }
+//-----------------------------------------------------------------//
+
+
+
+//------------------------------------------------------------------//
+String readRPY()
+{
+  String data = String(roll,4);
+  data += ",";
+  data += String(pitch, 4);
+  data += ",";
+  data += String(yaw, 4);
+  return data;
+}
+
+String readAcc()
+{
+  String data = String(axCal,4);
+  data += ",";
+  data += String(ayCal, 4);
+  data += ",";
+  data += String(azCal, 4);
+  return data;
+}
+
+String readGyro()
+{
+  String data = String(gxCal,4);
+  data += ",";
+  data += String(gyCal, 4);
+  data += ",";
+  data += String(gzCal, 4);
+  return data;
+}
+
+String readQuat()
+{
+  String data = String(qw,4);
+  data += ",";
+  data += String(qx, 4);
+  data += ",";
+  data += String(qy, 4);
+  data += ",";
+  data += String(qz, 4);
+  return data;
+}
+//-------------------------------------------------------------------//
 
 
 #endif

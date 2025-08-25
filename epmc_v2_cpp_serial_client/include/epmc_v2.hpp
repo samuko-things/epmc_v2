@@ -71,6 +71,8 @@ public:
 
     val[0] = 0.0;
     val[1] = 0.0;
+    val[2] = 0.0;
+    val[3] = 0.0;
   }
 
   void readVel(int motor_no, float &filteredAngVel)
@@ -83,6 +85,8 @@ public:
 
     val[0] = 0.0;
     val[1] = 0.0;
+    val[2] = 0.0;
+    val[3] = 0.0;
   }
 
   void readVelFull(int motor_no, float &filteredAngVel, float &unfilteredAngVel)
@@ -96,6 +100,8 @@ public:
 
     val[0] = 0.0;
     val[1] = 0.0;
+    val[2] = 0.0;
+    val[3] = 0.0;
   }
 
   bool writePWM(int motor_no, int pwm_val)
@@ -123,6 +129,8 @@ public:
 
     val[0] = 0.0;
     val[1] = 0.0;
+    val[2] = 0.0;
+    val[3] = 0.0;
   }
 
   bool setPidMode(int motor_no, int mode)
@@ -140,12 +148,79 @@ public:
 
     val[0] = 0.0;
     val[1] = 0.0;
+    val[2] = 0.0;
+    val[3] = 0.0;
+  }
+
+  void readRPY(float &roll, float &pitch, float &yaw)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/rpy" << "," << -1;
+    get(cmd_str.str());
+
+    roll = val[0];
+    pitch = val[1];
+    yaw = val[2];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+    val[2] = 0.0;
+    val[3] = 0.0;
+  }
+
+  void readAcc(float &ax, float &ay, float &az)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/acc" << "," << -1;
+    get(cmd_str.str());
+
+    ax = val[0];
+    ay = val[1];
+    az = val[2];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+    val[2] = 0.0;
+    val[3] = 0.0;
+  }
+
+  void readGyro(float &gx, float &gy, float &gz)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/gyro" << "," << -1;
+    get(cmd_str.str());
+
+    gx = val[0];
+    gy = val[1];
+    gz = val[2];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+    val[2] = 0.0;
+    val[3] = 0.0;
+  }
+
+  void readQuat(float &qw, float &qx, float &qy, float &qz)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/quat" << "," << -1;
+    get(cmd_str.str());
+
+    qw = val[0];
+    qx = val[1];
+    qy = val[2];
+    qz = val[3];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+    val[2] = 0.0;
+    val[3] = 0.0;
   }
 
 private:
   LibSerial::SerialPort serial_conn_;
   int timeout_ms_;
-  float val[2];
+  float val[4];
 
   std::string send_and_receive(const std::string &msg_cmd)
   {
