@@ -2,6 +2,8 @@ import tkinter as tk
 import ttkbootstrap as tb
 from ttkbootstrap.constants import *
 
+from epmc_v2.globalParams import g
+
 from epmc_v2.pages.I2CSetupPage import I2CSetupFrame
 from epmc_v2.pages.ResetSetupPage import ResetSetupFrame
 from epmc_v2.pages.EncSetupPage import EncSetupFrame
@@ -13,6 +15,8 @@ from epmc_v2.pages.PidSetupPage import PidSetupFrame
 class MainAppFrame(tb.Frame):
   def __init__(self, parentFrame):
     super().__init__(master=parentFrame)
+
+    self.use_imu = True
 
 
     # SIDEBAR NAVIGATION FRAME
@@ -27,7 +31,7 @@ class MainAppFrame(tb.Frame):
 
     buttonStyle = tb.Style()
     buttonStyleName = 'primary.Link.TButton'
-    buttonStyle.configure(buttonStyleName, font=('Monospace',12, 'bold'))
+    buttonStyle.configure(buttonStyleName, font=('Monospace',10, 'bold'))
 
     self.button1 = tb.Button(self.sideNavFrame, text="MOTOR 0 ENC", style=buttonStyleName,
                              command= lambda: self.displayPage(self.button1, self.displayMotor0EncSetupPage))
@@ -53,30 +57,44 @@ class MainAppFrame(tb.Frame):
     self.button8 = tb.Button(self.sideNavFrame, text="MOTOR 3 PID", style=buttonStyleName,
                              command= lambda: self.displayPage(self.button8, self.displayMotor3PidSetupPage))
     
-    self.button9 = tb.Button(self.sideNavFrame, text="I2C SETUP", style=buttonStyleName,
-                             command= lambda: self.displayPage(self.button9, self.displayI2CSetupPage))
+    self.button9 = tb.Button(self.sideNavFrame, text="RESET PARAMS", style=buttonStyleName,
+                             command= lambda: self.displayPage(self.button9, self.displayResetPage))
     
-    self.button10 = tb.Button(self.sideNavFrame, text="RESET PARAMS", style=buttonStyleName,
+    if (self.use_imu):
+      self.button10 = tb.Button(self.sideNavFrame, text="IMU CALIBRATE", style=buttonStyleName,
                              command= lambda: self.displayPage(self.button10, self.displayResetPage))
+      self.button11 = tb.Button(self.sideNavFrame, text="IMU VISUALIZE", style=buttonStyleName,
+                             command= lambda: self.displayPage(self.button11, self.displayResetPage))
+      self.button12 = tb.Button(self.sideNavFrame, text="IMU VARIANCE", style=buttonStyleName,
+                             command= lambda: self.displayPage(self.button12, self.displayResetPage))
+    else:
+      self.button10 = tb.Button(self.sideNavFrame, text="I2C SETUP", style=buttonStyleName,
+                             command= lambda: self.displayPage(self.button10, self.displayI2CSetupPage))
     
     
+    menu_padding = 30
     # add widget to sideNavFrame
-    self.label.pack(side="top", fill="x", padx=(40,0), pady=(0,40))
+    self.label.pack(side="top", fill="x", padx=(menu_padding,0), pady=(0,menu_padding))
     self.button1.pack(side="top", fill="x", padx=5, pady=0)
-    self.button2.pack(side="top", fill="x", padx=5, pady=(0,40))
+    self.button2.pack(side="top", fill="x", padx=5, pady=(0,menu_padding))
     self.button3.pack(side="top", fill="x", padx=5, pady=0)
-    self.button4.pack(side="top", fill="x", padx=5, pady=(0,40))
+    self.button4.pack(side="top", fill="x", padx=5, pady=(0,menu_padding))
     self.button5.pack(side="top", fill="x", padx=5, pady=0)
-    self.button6.pack(side="top", fill="x", padx=5, pady=(0,40))
+    self.button6.pack(side="top", fill="x", padx=5, pady=(0,menu_padding))
     self.button7.pack(side="top", fill="x", padx=5, pady=0)
-    self.button8.pack(side="top", fill="x", padx=5, pady=(0,40))
+    self.button8.pack(side="top", fill="x", padx=5, pady=(0,menu_padding))
     self.button9.pack(side="top", fill="x", padx=5, pady=0)
-    self.button10.pack(side="top", fill="x", padx=5, pady=0)
+    if (self.use_imu):
+      self.button10.pack(side="top", fill="x", padx=5, pady=(menu_padding,0))
+      self.button11.pack(side="top", fill="x", padx=5, pady=0)
+      self.button12.pack(side="top", fill="x", padx=5, pady=0)
+    else:
+      self.button10.pack(side="top", fill="x", padx=5, pady=0)
 
 
     
     ############Initialize the mainContentFrame ################
-    self.displayPage(self.button10, self.displayResetPage)
+    self.displayPage(self.button9, self.displayResetPage)
     ############################################################
 
 
@@ -96,7 +114,12 @@ class MainAppFrame(tb.Frame):
     self.button7.configure(state="normal")
     self.button8.configure(state="normal")
     self.button9.configure(state="normal")
-    self.button10.configure(state="normal")
+    if(self.use_imu):
+      self.button10.configure(state="normal")
+      self.button11.configure(state="normal")
+      self.button12.configure(state="normal")
+    else:
+      self.button10.configure(state="normal")
   
   def displayPage(self, button, page):
     self.enable_all_nav_buttons()
@@ -143,10 +166,10 @@ class MainAppFrame(tb.Frame):
     self.motor3PidSetupFrame = PidSetupFrame(self.mainContentFrame, motorNo=3)
     self.motor3PidSetupFrame.pack(side="left", expand=True, fill="both")
 
-  def displayI2CSetupPage(self):
-    self.i2cSetupFrame = I2CSetupFrame(self.mainContentFrame)
-    self.i2cSetupFrame.pack(side="left", expand=True, fill="both")
-
   def displayResetPage(self):
     self.resetFrame = ResetSetupFrame(self.mainContentFrame)
     self.resetFrame.pack(side="left", expand=True, fill="both")
+
+  def displayI2CSetupPage(self):
+    self.i2cSetupFrame = I2CSetupFrame(self.mainContentFrame)
+    self.i2cSetupFrame.pack(side="left", expand=True, fill="both")

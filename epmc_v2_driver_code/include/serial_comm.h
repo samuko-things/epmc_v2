@@ -237,6 +237,17 @@ void recieve_and_send_data(){
         Serial.println(sendMsg);
       }
 
+      else if (dataMsgBufferArray[0] == "/i2c")
+      {
+        if (dataMsgBufferArray[2] == ""){
+          sendMsg = "-1";
+        }
+        else {
+          sendMsg = "0";
+        }
+        Serial.println(sendMsg);
+      }
+
       else if (dataMsgBufferArray[0] == "/reset")
       {
         sendMsg = triggerResetParams();
