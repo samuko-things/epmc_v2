@@ -41,51 +41,51 @@ void recieve_and_send_data(){
 
     if (dataMsgBufferArray[0] != "")
     {
-      int motor_no = dataMsgBufferArray[1].toInt();
-      bool motor_no_not_found = (motor_no < 0) || (motor_no > (num_of_motors-1));
+      int pos = dataMsgBufferArray[1].toInt();
+      bool pos_not_found = (pos < 0) || (pos > (num_of_motors-1));
 
       digitalWrite(LED_BUILTIN, HIGH);
 
       if (dataMsgBufferArray[0] == "/pos")
       {
-        if (motor_no_not_found)
+        if (pos_not_found)
           sendMsg = "0.000";
         else
-          sendMsg = readPos(motor_no);
+          sendMsg = readPos(pos);
         Serial.println(sendMsg);
       }
 
       else if (dataMsgBufferArray[0] == "/pvel")
       {
-        if (motor_no_not_found)
+        if (pos_not_found)
           sendMsg = "0.0,0.0";
         else
-          sendMsg = readPidVel(motor_no);
+          sendMsg = readPidVel(pos);
         Serial.println(sendMsg);
       }
 
       else if (dataMsgBufferArray[0] == "/pwm")
       {
-        if (motor_no_not_found)
+        if (pos_not_found)
           sendMsg = "0";
         else
-          sendMsg = writePWM(motor_no, dataMsgBufferArray[2].toInt());
+          sendMsg = writePWM(pos, dataMsgBufferArray[2].toInt());
         Serial.println(sendMsg);
       }
 
       else if (dataMsgBufferArray[0] == "/vel")
       {
         if (dataMsgBufferArray[2] == ""){
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0.0,0.0";
           else
-            sendMsg = readVel(motor_no);
+            sendMsg = readVel(pos);
         }
         else {
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0";
           else
-            sendMsg = writeSpeed(motor_no, dataMsgBufferArray[2].toDouble());
+            sendMsg = writeSpeed(pos, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -93,16 +93,16 @@ void recieve_and_send_data(){
       else if (dataMsgBufferArray[0] == "/mode")
       {
         if (dataMsgBufferArray[2] == ""){
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "-1";
           else
-            sendMsg = getPidModeFunc(motor_no);
+            sendMsg = getPidModeFunc(pos);
         }
         else {
-          if (motor_no_not_found)
-            sendMsg = String(motor_no);
+          if (pos_not_found)
+            sendMsg = String(pos);
           else
-            sendMsg = setPidModeFunc(motor_no, dataMsgBufferArray[2].toInt());
+            sendMsg = setPidModeFunc(pos, dataMsgBufferArray[2].toInt());
         }
         Serial.println(sendMsg);
       }
@@ -110,16 +110,16 @@ void recieve_and_send_data(){
       else if (dataMsgBufferArray[0] == "/ppr")
       {
         if (dataMsgBufferArray[2] == ""){
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0.0";
           else
-            sendMsg = getEncoderPPR(motor_no);
+            sendMsg = getEncoderPPR(pos);
         }
         else {
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0";
           else
-            sendMsg = setEncoderPPR(motor_no, dataMsgBufferArray[2].toDouble());
+            sendMsg = setEncoderPPR(pos, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -127,16 +127,16 @@ void recieve_and_send_data(){
       else if (dataMsgBufferArray[0] == "/kp")
       {
         if (dataMsgBufferArray[2] == ""){
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0.0";
           else
-            sendMsg = getMotorKp(motor_no);
+            sendMsg = getMotorKp(pos);
         }
         else {
-          if (motor_no_not_found)
-            sendMsg = String(motor_no);
+          if (pos_not_found)
+            sendMsg = String(pos);
           else
-            sendMsg = setMotorKp(motor_no, dataMsgBufferArray[2].toDouble());
+            sendMsg = setMotorKp(pos, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -144,16 +144,16 @@ void recieve_and_send_data(){
       else if (dataMsgBufferArray[0] == "/ki")
       {
         if (dataMsgBufferArray[2] == ""){
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0.0";
           else
-            sendMsg = getMotorKi(motor_no);
+            sendMsg = getMotorKi(pos);
         }
         else {
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0";
           else
-            sendMsg = setMotorKi(motor_no, dataMsgBufferArray[2].toDouble());
+            sendMsg = setMotorKi(pos, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -161,16 +161,16 @@ void recieve_and_send_data(){
       else if (dataMsgBufferArray[0] == "/kd")
       {
         if (dataMsgBufferArray[2] == ""){
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0.0";
           else
-            sendMsg = getMotorKd(motor_no);
+            sendMsg = getMotorKd(pos);
         }
         else {
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0";
           else
-            sendMsg = setMotorKd(motor_no, dataMsgBufferArray[2].toDouble());
+            sendMsg = setMotorKd(pos, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -178,16 +178,16 @@ void recieve_and_send_data(){
       else if (dataMsgBufferArray[0] == "/rdir")
       {
         if (dataMsgBufferArray[2] == ""){
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0.0";
           else
-            sendMsg = getRdir(motor_no);
+            sendMsg = getRdir(pos);
         }
         else {
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0";
           else
-            sendMsg = setRdir(motor_no, dataMsgBufferArray[2].toInt());
+            sendMsg = setRdir(pos, dataMsgBufferArray[2].toInt());
         }
         Serial.println(sendMsg);
       }
@@ -195,16 +195,16 @@ void recieve_and_send_data(){
       else if (dataMsgBufferArray[0] == "/cut-freq")
       {
         if (dataMsgBufferArray[2] == ""){
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0.0";
           else
-            sendMsg = getCutoffFreq(motor_no);
+            sendMsg = getCutoffFreq(pos);
         }
         else {
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0";
           else
-            sendMsg = setCutoffFreq(motor_no, dataMsgBufferArray[2].toDouble());
+            sendMsg = setCutoffFreq(pos, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -212,16 +212,16 @@ void recieve_and_send_data(){
       else if (dataMsgBufferArray[0] == "/max-vel")
       {
         if (dataMsgBufferArray[2] == ""){
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0.0";
           else
-            sendMsg = getMaxVel(motor_no);
+            sendMsg = getMaxVel(pos);
         }
         else {
-          if (motor_no_not_found)
+          if (pos_not_found)
             sendMsg = "0";
           else
-            sendMsg = setMaxVel(motor_no, dataMsgBufferArray[2].toDouble());
+            sendMsg = setMaxVel(pos, dataMsgBufferArray[2].toDouble());
         }
         Serial.println(sendMsg);
       }
@@ -254,27 +254,147 @@ void recieve_and_send_data(){
         Serial.println(sendMsg);
       }
 
-      else if (dataMsgBufferArray[0] == "/rpy")
+      else if (dataMsgBufferArray[0] == "/use-imu")
       {
-        sendMsg = readRPY();
+        sendMsg = useImu();
         Serial.println(sendMsg);
       }
 
+      else if (dataMsgBufferArray[0] == "/rpy")
+      {
+        if (pos_not_found)
+          sendMsg = "0.00";
+        else
+          sendMsg = readRPY(pos);
+        Serial.println(sendMsg);
+      }
       else if (dataMsgBufferArray[0] == "/quat")
       {
-        sendMsg = readQuat();
+        if (pos_not_found)
+          sendMsg = "0.00";
+        else
+          sendMsg = readQuat(pos);
         Serial.println(sendMsg);
       }
 
       else if (dataMsgBufferArray[0] == "/acc")
       {
-        sendMsg = readAcc();
+        if (pos_not_found)
+          sendMsg = "0.00";
+        else
+          sendMsg = readAcc(pos);
         Serial.println(sendMsg);
       }
 
       else if (dataMsgBufferArray[0] == "/gyro")
       {
-        sendMsg = readGyro();
+        if (pos_not_found)
+          sendMsg = "0.00";
+        else
+          sendMsg = readGyro(pos);
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/acc-raw")
+      {
+        if (pos_not_found)
+          sendMsg = "0.00";
+        else
+          sendMsg = readAccRaw(pos);
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/gyro-raw")
+      {
+        if (pos_not_found)
+          sendMsg = "0.00";
+        else
+          sendMsg = readGyroRaw(pos);
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/acc-off")
+      {
+        if (dataMsgBufferArray[2] == ""){
+          if (pos_not_found)
+            sendMsg = "0.00";
+          else
+            sendMsg = readAccOffset(pos);
+        }
+        else {
+          if (pos_not_found)
+            sendMsg = "0";
+          else
+            sendMsg = writeAccOffset(pos, dataMsgBufferArray[2].toFloat());
+        }
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/gyro-off")
+      {
+        if (dataMsgBufferArray[2] == ""){
+          if (pos_not_found)
+            sendMsg = "0.00";
+          else
+            sendMsg = readGyroOffset(pos);
+        }
+        else {
+          if (pos_not_found)
+            sendMsg = "0";
+          else
+            sendMsg = writeGyroOffset(pos, dataMsgBufferArray[2].toFloat());
+        }
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/acc-var")
+      {
+        if (dataMsgBufferArray[2] == ""){
+          if (pos_not_found)
+            sendMsg = "0.00";
+          else
+            sendMsg = readAccVariance(pos);
+        }
+        else {
+          if (pos_not_found)
+            sendMsg = "0";
+          else
+            sendMsg = writeAccVariance(pos, dataMsgBufferArray[2].toFloat());
+        }
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/gyro-var")
+      {
+        if (dataMsgBufferArray[2] == ""){
+          if (pos_not_found)
+            sendMsg = "0.00";
+          else
+            sendMsg = readGyroVariance(pos);
+        }
+        else {
+          if (pos_not_found)
+            sendMsg = "0";
+          else
+            sendMsg = writeGyroVariance(pos, dataMsgBufferArray[2].toFloat());
+        }
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/rpy-var")
+      {
+        if (dataMsgBufferArray[2] == ""){
+          if (pos_not_found)
+            sendMsg = "0.00";
+          else
+            sendMsg = readRPYVariance(pos);
+        }
+        else {
+          if (pos_not_found)
+            sendMsg = "0";
+          else
+            sendMsg = writeRPYVariance(pos, dataMsgBufferArray[2].toFloat());
+        }
         Serial.println(sendMsg);
       }
 

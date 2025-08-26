@@ -8,6 +8,9 @@ from epmc_v2.pages.I2CSetupPage import I2CSetupFrame
 from epmc_v2.pages.ResetSetupPage import ResetSetupFrame
 from epmc_v2.pages.EncSetupPage import EncSetupFrame
 from epmc_v2.pages.PidSetupPage import PidSetupFrame
+from epmc_v2.pages.ImuCalibratePage import ImuCalibrateFrame
+from epmc_v2.pages.ImuVariancePage import ImuVarianceFrame
+from epmc_v2.pages.ImuVisualizePage import ImuVisualizeFrame
 
 
 
@@ -16,8 +19,8 @@ class MainAppFrame(tb.Frame):
   def __init__(self, parentFrame):
     super().__init__(master=parentFrame)
 
-    self.use_imu = True
-
+    self.use_imu = g.epmcV2.readUseIMU()
+    print(self.use_imu)
 
     # SIDEBAR NAVIGATION FRAME
     self.sideNavFrame = tb.LabelFrame(self, borderwidth=10)
@@ -62,11 +65,11 @@ class MainAppFrame(tb.Frame):
     
     if (self.use_imu):
       self.button10 = tb.Button(self.sideNavFrame, text="IMU CALIBRATE", style=buttonStyleName,
-                             command= lambda: self.displayPage(self.button10, self.displayResetPage))
+                             command= lambda: self.displayPage(self.button10, self.displayImuCalibratePage))
       self.button11 = tb.Button(self.sideNavFrame, text="IMU VISUALIZE", style=buttonStyleName,
-                             command= lambda: self.displayPage(self.button11, self.displayResetPage))
+                             command= lambda: self.displayPage(self.button11, self.displayImuVisualizePage))
       self.button12 = tb.Button(self.sideNavFrame, text="IMU VARIANCE", style=buttonStyleName,
-                             command= lambda: self.displayPage(self.button12, self.displayResetPage))
+                             command= lambda: self.displayPage(self.button12, self.displayImuVariancePage))
     else:
       self.button10 = tb.Button(self.sideNavFrame, text="I2C SETUP", style=buttonStyleName,
                              command= lambda: self.displayPage(self.button10, self.displayI2CSetupPage))
@@ -173,3 +176,15 @@ class MainAppFrame(tb.Frame):
   def displayI2CSetupPage(self):
     self.i2cSetupFrame = I2CSetupFrame(self.mainContentFrame)
     self.i2cSetupFrame.pack(side="left", expand=True, fill="both")
+  
+  def displayImuCalibratePage(self):
+    self.imuCalibrateFrame = ImuCalibrateFrame(self.mainContentFrame)
+    self.imuCalibrateFrame.pack(side="left", expand=True, fill="both")
+
+  def displayImuVisualizePage(self):
+    self.imuVisualizeFrame = ImuVisualizeFrame(self.mainContentFrame)
+    self.imuVisualizeFrame.pack(side="left", expand=True, fill="both")
+
+  def displayImuVariancePage(self):
+    self.imuVarianceFrame = ImuVarianceFrame(self.mainContentFrame)
+    self.imuVarianceFrame.pack(side="left", expand=True, fill="both")

@@ -65,7 +65,9 @@ int main(int argc, char **argv)
     {
       try
       {
-        epmcV2.readRPY(roll, pitch, yaw); // gets RPY and store value in roll, pitch and yaw variable
+        roll = epmcV2.readRPY(0);
+        pitch = epmcV2.readRPY(1);
+        yaw = epmcV2.readRPY(2);
       }
       catch (...)
       {

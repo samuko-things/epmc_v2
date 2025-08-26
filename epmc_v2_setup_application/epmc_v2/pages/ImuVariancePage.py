@@ -61,6 +61,10 @@ class ImuVarianceFrame(tb.Frame):
     self.loop_count = 0
     self.no_of_samples = 1000
 
+    self.r_arr = []
+    self.p_arr = []
+    self.y_arr = []
+
     self.accx_arr = []
     self.accy_arr = []
     self.accz_arr = []
@@ -77,12 +81,25 @@ class ImuVarianceFrame(tb.Frame):
     if self.start_process:
       self.no_of_samples = 1000
 
-      accx_cal, accy_cal, accz_cal = g.serClient.get('/acc-cal')
-      gyrox_cal, gyroy_cal, gyroz_cal = g.serClient.get('/gyro-cal')
+      r = g.epmcV2.readRPY(0)
+      p = g.epmcV2.readRPY(1)
+      y = g.epmcV2.readRPY(2)
+
+      self.r_arr.append(r)
+      self.p_arr.append(p)
+      self.y_arr.append(y)
+
+      accx_cal = g.epmcV2.readAcc(0)
+      accy_cal = g.epmcV2.readAcc(1)
+      accz_cal = g.epmcV2.readAcc(2)
 
       self.accx_arr.append(accx_cal)
       self.accy_arr.append(accy_cal)
       self.accz_arr.append(accz_cal)
+
+      gyrox_cal = g.epmcV2.readGyro(0)
+      gyroy_cal = g.epmcV2.readGyro(1)
+      gyroz_cal = g.epmcV2.readGyro(2)
 
       self.gyrox_arr.append(gyrox_cal)
       self.gyroy_arr.append(gyroy_cal)
@@ -106,12 +123,37 @@ class ImuVarianceFrame(tb.Frame):
       self.canvas.after(10, self.compute_variance)
 
   def print_computed_variance(self):
+    r_variance = np.var(self.r_arr)
+    p_variance = np.var(self.p_arr)
+    y_variance = np.var(self.y_arr)
+
+    g.epmcV2.writeRPYVariance(0, r_variance)
+    g.epmcV2.writeRPYVariance(1, p_variance)
+    g.epmcV2.writeRPYVariance(2, y_variance)
+
+    r_variance = g.epmcV2.readRPYVariance(0)
+    p_variance = g.epmcV2.readRPYVariance(1)
+    y_variance = g.epmcV2.readRPYVariance(2)
+
+    rpy_variance = [ r_variance, p_variance, y_variance]
+
+    print(colored("\n---------------------------------------------------------------", 'magenta'))
+    print(colored("stored rpy variances", 'green'))
+    print(rpy_variance)
+    print(colored("---------------------------------------------------------------", 'magenta'))
+
     accx_variance = np.var(self.accx_arr)
     accy_variance = np.var(self.accy_arr)
     accz_variance = np.var(self.accz_arr)
 
-    g.serClient.send('/acc-var', accx_variance, accy_variance, accz_variance)
-    accx_variance, accy_variance, accz_variance = g.serClient.get('/acc-var')
+    g.epmcV2.writeAccVariance(0, accx_variance)
+    g.epmcV2.writeAccVariance(1, accy_variance)
+    g.epmcV2.writeAccVariance(2, accz_variance)
+
+    accx_variance = g.epmcV2.readAccVariance(0)
+    accy_variance = g.epmcV2.readAccVariance(1)
+    accz_variance = g.epmcV2.readAccVariance(2)
+
     acc_variance = [ accx_variance, accy_variance, accz_variance]
 
     print(colored("\n---------------------------------------------------------------", 'magenta'))
@@ -123,8 +165,14 @@ class ImuVarianceFrame(tb.Frame):
     gyroy_variance = np.var(self.gyroy_arr)
     gyroz_variance = np.var(self.gyroz_arr)
 
-    g.serClient.send('/acc-var', gyrox_variance, gyroy_variance, gyroz_variance)
-    gyrox_variance, gyroy_variance, gyroz_variance = g.serClient.get('/gyro-var')
+    g.epmcV2.writeGyroVariance(0, gyrox_variance)
+    g.epmcV2.writeGyroVariance(1, gyroy_variance)
+    g.epmcV2.writeGyroVariance(2, gyroz_variance)
+
+    gyrox_variance = g.epmcV2.readGyroVariance(0)
+    gyroy_variance = g.epmcV2.readGyroVariance(1)
+    gyroz_variance = g.epmcV2.readGyroVariance(2)
+
     gyro_variance = [ gyrox_variance, gyroy_variance, gyroz_variance]
 
     print(colored("\n---------------------------------------------------------------", 'magenta'))

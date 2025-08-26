@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 
   // int motor_cmd_timeout_ms = 0;
   // epmcV2.setCmdTimeout(motor_cmd_timeout_ms); // set motor command timeout
-  // epmcV2.getCmdTimeout(motor_cmd_timeout_ms);
+  // motor_cmd_timeout_ms = epmcV2.getCmdTimeout();
   // std::cout << "motor command timeout: " << motor_cmd_timeout_ms << " ms" << std::endl;
 
   // left wheels (motor 0 and motor 2)
@@ -107,18 +107,18 @@ int main(int argc, char **argv)
       try
       {
         // left wheels (motor 0 and motor 2)
-        epmcV2.readPos(0, angPos0);
-        epmcV2.readVel(0, angVel0);
+        angPos0 = epmcV2.readPos(0);
+        angVel0 = epmcV2.readVel(0);
 
-        epmcV2.readPos(2, angPos2);
-        epmcV2.readVel(2, angVel2);
+        angPos2 = epmcV2.readPos(2);
+        angVel2 = epmcV2.readVel(2);
 
         // left wheels (motor 1 and motor 3)
-        epmcV2.readPos(1, angPos1);
-        epmcV2.readVel(1, angVel1);
+        angPos1 = epmcV2.readPos(1);
+        angVel1 = epmcV2.readVel(1);
 
-        epmcV2.readPos(3, angPos3);
-        epmcV2.readVel(3, angVel3);
+        angPos3 = epmcV2.readPos(3);
+        angVel3 = epmcV2.readVel(3);
       }
       catch (...)
       {

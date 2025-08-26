@@ -130,8 +130,8 @@ void imuInit()
 {
   imu.begin();
 
-  madgwickFilter.setAlgorithmGain(1.0);
-  madgwickFilter.setDriftBiasGain(0.05);
+  madgwickFilter.setAlgorithmGain(IMU_filterGain);
+  madgwickFilter.setDriftBiasGain(IMU_gyroBiasGain);
   madgwickFilter.setWorldFrameId(0); // 0 - NWU, 1 - ENU, 2 - NED (I'm using NWU reference frame)
 }
 
@@ -144,6 +144,9 @@ unsigned long pidStopTime[num_of_motors], pidStopTimeInterval = 500;
 unsigned long readImuTime, readImuSampleTime = 20;        // ms -> (1000/sampleTime) hz
 //---------------------------------------------------------------------------------------------
 
+float driftGain = 0.000477118;
+float angAccum = 0.0;
+
 void setup()
 {
   loadStoredParams();
@@ -154,7 +157,6 @@ void setup()
   Wire.begin();
 
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
 
   analogWriteResolution(8); // 8 Bit resolution
   analogWriteFrequency(1000); // 1kHz
@@ -163,6 +165,10 @@ void setup()
   velFilterInit();
   pidInit();
   imuInit();
+
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(1000);
+  digitalWrite(LED_BUILTIN, LOW);
 
   // Initialize timing markers
   unsigned long now = millis();
@@ -255,33 +261,43 @@ void loop()
   if ((millis() - readImuTime) >= readImuSampleTime)
   {
     //------------READ ACC DATA (m/s^2) AND CALIBRATE---------------//
-    float axRaw = imu.readAccX_mps2(); // m/s²
-    float ayRaw = imu.readAccY_mps2(); // m/s²
-    float azRaw = imu.readAccZ_mps2(); // m/s²
+    accRaw[0] = imu.readAccX_mps2(); // m/s²
+    accRaw[1] = imu.readAccY_mps2(); // m/s²
+    accRaw[2] = imu.readAccZ_mps2(); // m/s²
 
-    axCal = axRaw - axOff;
-    ayCal = ayRaw - ayOff;
-    azCal = azRaw - azOff;
+    accCal[0] = accRaw[0] - accOff[0];
+    accCal[1] = accRaw[1] - accOff[1];
+    accCal[2] = accRaw[2] - accOff[2];
     //------------------------------------------------------//
 
     //-----------READ GYRO DATA (rad/s) AND CALIBRATE---------------//
-    float gxRaw = imu.readGyroX_rps(); // rad/s
-    float gyRaw = imu.readGyroY_rps(); // rad/s
-    float gzRaw = imu.readGyroZ_rps(); // rad/s
+    gyroRaw[0] = imu.readGyroX_rps(); // rad/s
+    gyroRaw[1] = imu.readGyroY_rps(); // rad/s
+    gyroRaw[2] = imu.readGyroZ_rps(); // rad/s
 
-    gxCal = gxRaw - gxOff;
-    gyCal = gyRaw - gyOff;
-    gzCal = gzRaw - gzOff;
+    gyroCal[0] = gyroRaw[0] - gyroOff[0];
+    gyroCal[1] = gyroRaw[1] - gyroOff[1];
+    gyroCal[2] = gyroRaw[2] - gyroOff[2];
     //-----------------------------------------------------//
 
     //-------- APPLY MADWICK FILTER IN NWU FRAME ----------//
-    madgwickFilter.madgwickAHRSupdateIMU(gxCal, gyCal, gzCal, axCal, ayCal, azCal);
+    madgwickFilter.madgwickAHRSupdateIMU(gyroCal[0], gyroCal[1], gyroCal[2], accCal[0], accCal[1], accCal[2]);
 
     //if you have a magnetometer use this:
     //madgwickFilter.madgwickAHRSupdate(gxCal, gyCal, gzCal, axCal, ayCal, azCal, mxCal, myCal, mzCal);
 
+    float roll, pitch, yaw;
+    float qw, qx, qy, qz;
     madgwickFilter.getOrientationRPY(roll, pitch, yaw);
     madgwickFilter.getOrientationQuat(qw, qx, qy, qz);
+
+    randomSeed(millis());
+    int randGain = random(9, 15);
+    if (randGain < 10) randGain = 0;
+    float gain = (float)randGain/10.0;
+    angAccum += ((driftGain*(float)readImuSampleTime*gain)/1000.0);
+    rpy[0] = roll; rpy[1] = pitch; rpy[2] = yaw - angAccum;
+    quat[0] = qw; quat[1] = qx; quat[2] = qy; quat[3] = qz;
     // ----------------------------------------------------//
 
     readImuTime = millis(); 

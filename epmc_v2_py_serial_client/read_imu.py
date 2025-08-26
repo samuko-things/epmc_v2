@@ -28,7 +28,9 @@ def main():
   while True:
     if time.time() - prevTime > sampleTime:
       try:
-        roll, pitch, yaw = epmcV2.readRPY()
+        roll = epmcV2.readRPY(0)
+        pitch = epmcV2.readRPY(1)
+        yaw = epmcV2.readRPY(2)
         print(f"roll: {roll}\tpitch: {pitch}\tyaw: {yaw}\n")
       except:
         pass

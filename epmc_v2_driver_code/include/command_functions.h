@@ -8,7 +8,7 @@
 #include "adaptive_low_pass_filter.h"
 #include "simple_pid_control.h"
 #include "mpu6050.h"
-#include <imu_madgwick_filter.h>
+#include "madgwick_filter.h"
 
 //--------------- global variables -----------------//
 const int num_of_motors = 4;
@@ -171,35 +171,80 @@ bool firstLoad = false;
 
 
 //-------------- IMU MPU6050 ---------------------//
-float axOff = 0.0;
-float ayOff = 0.0;
-float azOff = 0.0;
+float accOff[3] = {
+  0.0,
+  0.0,
+  0.0
+};
 
-float gxOff = 0.0;
-float gyOff = 0.0;
-float gzOff = 0.0;
+float accVar[3] = {
+  0.0,
+  0.0,
+  0.0
+};
 
-float axCal = 0.00;
-float ayCal = 0.00;
-float azCal = 0.00;
+float accRaw[3] = {
+  0.0,
+  0.0,
+  0.0
+};
 
-float gxCal = 0.00;
-float gyCal = 0.00;
-float gzCal = 0.00;
+float accCal[3] = {
+  0.0,
+  0.0,
+  0.0
+};
 
-float roll = 0.00;
-float pitch = 0.00;
-float yaw = 0.00;
+float gyroOff[3] = {
+  0.0,
+  0.0,
+  0.0
+};
 
-float qw = 0.00;
-float qx = 0.00;
-float qy = 0.00;
-float qz = 0.00;
+float gyroVar[3] = {
+  0.0,
+  0.0,
+  0.0
+};
 
-float filterGain = 1.0;
+float gyroRaw[3] = {
+  0.0,
+  0.0,
+  0.0
+};
+
+float gyroCal[3] = {
+  0.0,
+  0.0,
+  0.0
+};
+
+float rpy[3] = {
+  0.0,
+  0.0,
+  0.0
+};
+
+float rpyVar[3] = {
+  0.0,
+  0.0,
+  0.0
+};
+
+float quat[4] = {
+  0.0,
+  0.0,
+  0.0,
+  0.0
+};
+
+float IMU_filterGain = 0.1;
+float IMU_gyroBiasGain = 0.0;
+
+int use_imu = 1;
 
 MPU6050 imu;
-ImuMadgwickFilter madgwickFilter;
+MadgwickFilter madgwickFilter;
 //------------------------------------------------//
 
 
@@ -256,6 +301,36 @@ const char * maxVel_key[num_of_motors] = {
   "maxVel3"
 };
 
+const char * accOff_key[3] = {
+  "accOff0",
+  "accOff1",
+  "accOff2",
+};
+
+const char * accVar_key[3] = {
+  "accVar0",
+  "accVar1",
+  "accVar2",
+};
+
+const char * gyroOff_key[3] = {
+  "gyroOff0",
+  "gyroOff1",
+  "gyroOff2",
+};
+
+const char * gyroVar_key[3] = {
+  "gyroVar0",
+  "gyroVar1",
+  "gyroVar2",
+};
+
+const char * rpyVar_key[3] = {
+  "rpyVar0",
+  "rpyVar1",
+  "rpyVar2",
+};
+
 const char * i2cAddress_key = "i2cAddress";
 
 const char * firstLoad_key = "firstLoad";
@@ -273,6 +348,13 @@ void resetParamsInStorage(){
     storage.putDouble(cf_key[i], 1.5);
     storage.putInt(rdir_key[i], 1);
     storage.putDouble(maxVel_key[i], 10.0);
+  }
+  for (int i=0; i<3; i+=1){
+    storage.putFloat(accOff_key[i], 0.0);
+    storage.putFloat(accVar_key[i], 0.0);
+    storage.putFloat(gyroOff_key[i], 0.0);
+    storage.putFloat(gyroVar_key[i], 0.0);
+    storage.putFloat(rpyVar_key[i], 0.0);
   }
   storage.putUChar(i2cAddress_key, 0x55);
 
@@ -308,6 +390,13 @@ void loadStoredParams(){
     cutOffFreq[i] = storage.getDouble(cf_key[i], 1.5);
     rdir[i] = storage.getInt(rdir_key[i], 1);
     maxVel[i] = storage.getDouble(maxVel_key[i], 10.0);
+  }
+  for (int i=0; i<3; i+=1){
+    accOff[i] = storage.getFloat(accOff_key[i], 0.0);
+    accVar[i] = storage.getFloat(accVar_key[i], 0.0);
+    gyroOff[i] = storage.getFloat(gyroOff_key[i], 0.0);
+    gyroVar[i] = storage.getFloat(gyroVar_key[i], 0.0);
+    rpyVar[i] = storage.getFloat(rpyVar_key[i], 0.0);
   }
   i2cAddress = storage.getUChar(i2cAddress_key, 0x55);
 
@@ -550,47 +639,185 @@ String triggerResetParams()
 
 
 //------------------------------------------------------------------//
-String readRPY()
-{
-  String data = String(roll,4);
-  data += ",";
-  data += String(pitch, 4);
-  data += ",";
-  data += String(yaw, 4);
-  return data;
+String useImu(){
+  return String(use_imu);
 }
 
-String readAcc()
+String readRPY(int no)
 {
-  String data = String(axCal,4);
-  data += ",";
-  data += String(ayCal, 4);
-  data += ",";
-  data += String(azCal, 4);
-  return data;
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(rpy[no], 6);
 }
 
-String readGyro()
+String readAcc(int no)
 {
-  String data = String(gxCal,4);
-  data += ",";
-  data += String(gyCal, 4);
-  data += ",";
-  data += String(gzCal, 4);
-  return data;
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(accCal[no], 6);
 }
 
-String readQuat()
+String readGyro(int no)
 {
-  String data = String(qw,4);
-  data += ",";
-  data += String(qx, 4);
-  data += ",";
-  data += String(qy, 4);
-  data += ",";
-  data += String(qz, 4);
-  return data;
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(gyroCal[no], 6);
 }
+
+String readQuat(int no)
+{
+  bool not_allowed = (no < 0) || (no > (3));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(quat[no], 6);
+}
+
+String readAccRaw(int no)
+{
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(accRaw[no], 6);
+}
+
+String readGyroRaw(int no)
+{
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(gyroRaw[no], 6);
+}
+
+
+String readAccOffset(int no)
+{
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(accOff[no], 8);
+}
+String writeAccOffset(int no, float val) {
+  bool not_allowed = (no < 0) || (no > (2));
+  
+  if (not_allowed) 
+    return "0";
+
+  accOff[no] = val;
+  storage.begin(params_ns, false);
+  storage.putFloat(accOff_key[no], accOff[no]);
+  storage.end();
+  return "1";
+}
+
+
+String readGyroOffset(int no)
+{
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(gyroOff[no], 8);
+}
+String writeGyroOffset(int no, float val) {
+  bool not_allowed = (no < 0) || (no > (2));
+  
+  if (not_allowed) 
+    return "0";
+
+  gyroOff[no] = val;
+  storage.begin(params_ns, false);
+  storage.putFloat(gyroOff_key[no], gyroOff[no]);
+  storage.end();
+  return "1";
+}
+
+
+String readAccVariance(int no)
+{
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(accVar[no], 8);
+}
+String writeAccVariance(int no, float val) {
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0";
+
+  accVar[no] = val;
+  storage.begin(params_ns, false);
+  storage.putFloat(accVar_key[no], accVar[no]);
+  storage.end();
+  return "1";
+}
+
+
+String readGyroVariance(int no)
+{
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(gyroVar[no], 6);
+}
+String writeGyroVariance(int no, float val) {
+  bool not_allowed = (no < 0) || (no > (2));
+  
+  if (not_allowed) 
+    return "0";
+
+  gyroVar[no] = val;
+  storage.begin(params_ns, false);
+  storage.putFloat(gyroVar_key[no], gyroVar[no]);
+  storage.end();
+  return "1";
+}
+
+
+String readRPYVariance(int no)
+{
+  bool not_allowed = (no < 0) || (no > (2));
+
+  if (not_allowed) 
+    return "0.000";
+
+  return String(rpyVar[no], 6);
+}
+String writeRPYVariance(int no, float val) {
+  bool not_allowed = (no < 0) || (no > (2));
+  
+  if (not_allowed) 
+    return "0";
+
+  rpyVar[no] = val;
+  storage.begin(params_ns, false);
+  storage.putFloat(rpyVar_key[no], rpyVar[no]);
+  storage.end();
+  return "1";
+}
+
 //-------------------------------------------------------------------//
 
 

@@ -61,32 +61,32 @@ public:
     return serial_conn_.IsOpen();
   }
 
-  void readPos(int motor_no, float &angPos)
+  float readPos(int motor_no)
   {
     std::stringstream cmd_str;
     cmd_str << "/pos" << "," << motor_no;
     get(cmd_str.str());
 
-    angPos = val[0];
+    float angPos = val[0];
 
     val[0] = 0.0;
     val[1] = 0.0;
-    val[2] = 0.0;
-    val[3] = 0.0;
+
+    return angPos;
   }
 
-  void readVel(int motor_no, float &filteredAngVel)
+  float readVel(int motor_no)
   {
     std::stringstream cmd_str;
     cmd_str << "/vel" << "," << motor_no;
     get(cmd_str.str());
 
-    filteredAngVel = val[0];
+    float filteredAngVel = val[0];
 
     val[0] = 0.0;
     val[1] = 0.0;
-    val[2] = 0.0;
-    val[3] = 0.0;
+
+    return filteredAngVel;
   }
 
   void readVelFull(int motor_no, float &filteredAngVel, float &unfilteredAngVel)
@@ -100,8 +100,6 @@ public:
 
     val[0] = 0.0;
     val[1] = 0.0;
-    val[2] = 0.0;
-    val[3] = 0.0;
   }
 
   bool writePWM(int motor_no, int pwm_val)
@@ -119,18 +117,18 @@ public:
     return send("/timeout", -1, (float)timeout_ms);
   }
 
-  void getCmdTimeout(int &timeout_ms)
+  int getCmdTimeout()
   {
     std::stringstream cmd_str;
     cmd_str << "/timeout" << "," << -1;
     get(cmd_str.str());
 
-    timeout_ms = val[0];
+    int timeout_ms = (int)val[0];
 
     val[0] = 0.0;
     val[1] = 0.0;
-    val[2] = 0.0;
-    val[3] = 0.0;
+
+    return timeout_ms;
   }
 
   bool setPidMode(int motor_no, int mode)
@@ -138,89 +136,139 @@ public:
     return send("/mode", motor_no, (float)mode);
   }
 
-  void getPidMode(int motor_no, int &mode)
+  int getPidMode(int motor_no)
   {
     std::stringstream cmd_str;
     cmd_str << "/mode" << "," << motor_no;
     get(cmd_str.str());
 
-    mode = val[0];
+    int mode = (int)val[0];
 
     val[0] = 0.0;
     val[1] = 0.0;
-    val[2] = 0.0;
-    val[3] = 0.0;
+
+    return mode;
   }
 
-  void readRPY(float &roll, float &pitch, float &yaw)
-  {
-    std::stringstream cmd_str;
-    cmd_str << "/rpy" << "," << -1;
-    get(cmd_str.str());
-
-    roll = val[0];
-    pitch = val[1];
-    yaw = val[2];
-
-    val[0] = 0.0;
-    val[1] = 0.0;
-    val[2] = 0.0;
-    val[3] = 0.0;
-  }
-
-  void readAcc(float &ax, float &ay, float &az)
+  bool readUseImu()
   {
     std::stringstream cmd_str;
     cmd_str << "/acc" << "," << -1;
     get(cmd_str.str());
 
-    ax = val[0];
-    ay = val[1];
-    az = val[2];
+    float a = val[0];
 
     val[0] = 0.0;
     val[1] = 0.0;
-    val[2] = 0.0;
-    val[3] = 0.0;
+
+    if ((int)a == 1)
+      return true;
+    else
+      return false;
   }
 
-  void readGyro(float &gx, float &gy, float &gz)
+  float readRPY(int pos_no)
   {
     std::stringstream cmd_str;
-    cmd_str << "/gyro" << "," << -1;
+    cmd_str << "/rpy" << "," << pos_no;
     get(cmd_str.str());
 
-    gx = val[0];
-    gy = val[1];
-    gz = val[2];
+    float rpy_val = val[0];
 
     val[0] = 0.0;
     val[1] = 0.0;
-    val[2] = 0.0;
-    val[3] = 0.0;
+
+    return rpy_val;
   }
 
-  void readQuat(float &qw, float &qx, float &qy, float &qz)
+  float readAcc(int pos_no)
   {
     std::stringstream cmd_str;
-    cmd_str << "/quat" << "," << -1;
+    cmd_str << "/acc" << "," << pos_no;
     get(cmd_str.str());
 
-    qw = val[0];
-    qx = val[1];
-    qy = val[2];
-    qz = val[3];
+    float acc_val = val[0];
 
     val[0] = 0.0;
     val[1] = 0.0;
-    val[2] = 0.0;
-    val[3] = 0.0;
+
+    return acc_val;
+  }
+
+  float readGyro(int pos_no)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/gyro" << "," << pos_no;
+    get(cmd_str.str());
+
+    float gyro_val = val[0];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+
+    return gyro_val;
+  }
+
+  float readQuat(int pos_no)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/quat" << "," << pos_no;
+    get(cmd_str.str());
+
+    float q = val[0];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+
+    return q;
+  }
+
+  float readRPYVariance(int pos_no)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/rpy-var" << "," << pos_no;
+    get(cmd_str.str());
+
+    float rpy_val = val[0];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+
+    return rpy_val;
+  }
+
+  float readAccVarinace(int pos_no)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/acc-var" << "," << pos_no;
+    get(cmd_str.str());
+
+    float acc_val = val[0];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+
+    return acc_val;
+  }
+
+  float readGyroVariance(int pos_no)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/gyro-var" << "," << pos_no;
+    get(cmd_str.str());
+
+    float gyro_val = val[0];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+
+    return gyro_val;
   }
 
 private:
   LibSerial::SerialPort serial_conn_;
   int timeout_ms_;
-  float val[4];
+  float val[2];
 
   std::string send_and_receive(const std::string &msg_cmd)
   {

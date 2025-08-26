@@ -142,4 +142,83 @@ class EPMC_V2_FULL:
     def resetAllParams(self):
         res = self.send("/reset", -1, -1)
         return res
-    #######################################################
+    ####################################################
+
+    ###################################################
+    def readUseIMU(self):
+        res = self.get("/use-imu", -1)
+        res = int(res)
+        if res == 1:
+            return True
+        else:
+            return False
+    
+    def readRPY(self, pos_no):
+        val = self.get("/rpy", pos_no)
+        return val
+    
+    def readAcc(self, pos_no):
+        val = self.get("/acc", pos_no)
+        return val
+    
+    def readGyro(self, pos_no):
+        val = self.get("/gyro", pos_no)
+        return val
+    
+    def readQuat(self, pos_no):
+        val = self.get("/quat", pos_no)
+        return val
+    
+    def readAccRaw(self, pos_no):
+        val = self.get("/acc-raw", pos_no)
+        return val
+    
+    def readGyroRaw(self, pos_no):
+        val = self.get("/gyro-raw", pos_no)
+        return val
+    
+    #--------------------------------------------
+
+    def readAccVariance(self, pos_no):
+        val = self.get("/acc-var", pos_no)
+        return val
+    
+    def writeAccVariance(self, pos_no, val):
+        res = self.send("/acc-var", pos_no, val)
+        return res
+    
+    def readGyroVariance(self, pos_no):
+        val = self.get("/gyro-var", pos_no)
+        return val
+    
+    def writeGyroVariance(self, pos_no, val):
+        res = self.send("/gyro-var", pos_no, val)
+        return res
+    
+    def readRPYVariance(self, pos_no):
+        val = self.get("/rpy-var", pos_no)
+        return val
+    
+    def writeRPYVariance(self, pos_no, val):
+        res = self.send("/rpy-var", pos_no, val)
+        return res   
+    
+    #---------------------------------------------
+    
+    def readAccOffset(self, pos_no):
+        val = self.get("/acc-off", pos_no)
+        return val
+    
+    def writeAccOffset(self, pos_no, ax_off):
+        res = self.send("/acc-off", pos_no, ax_off)
+        return res
+    
+    def readGyroOffset(self, pos_no):
+        val = self.get("/gyro-off", pos_no)
+        return val
+    
+    def writeGyroOffset(self, pos_no, ax_off):
+        res = self.send("/gyro-off", pos_no, ax_off)
+        return res
+    
+    #####################################################

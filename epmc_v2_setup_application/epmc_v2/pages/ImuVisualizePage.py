@@ -37,11 +37,11 @@ class ImuVisualizeFrame(tb.Frame):
     self.label = tb.Label(self, text="VIZUALIZE IMU", font=('Monospace',16, 'bold') ,bootstyle="dark")
   
     #create widgets to be added to the Fame
-    # g.frameId = int(g.serClient.get("/frame-id"))
+    # g.frameId = int(g.epmcV2.get("/frame-id"))
     # self.selectFrameId = SelectValueFrame(self, keyTextInit=f"REFERENCE_FRAME: ", valTextInit=g.frameList[g.frameId],
     #                                       initialComboValues=g.frameList, middileware_func=self.selectFrameIdFunc)
     
-    # g.filterGain = g.serClient.get("/gain")
+    # g.filterGain = g.epmcV2.get("/gain")
     # self.setFilterGain = SetValueFrame(self, keyTextInit="FILTER_GAIN: ", valTextInit=g.filterGain,
     #                             middleware_func=self.setFilterGainFunc)
     
@@ -57,7 +57,9 @@ class ImuVisualizeFrame(tb.Frame):
     self.pitchValFrame = tb.Frame(self)
     self.yawValFrame = tb.Frame(self)
 
-    roll, pitch, yaw = g.serClient.get('/rpy')
+    roll = g.epmcV2.readRPY(0)
+    pitch = g.epmcV2.readRPY(1)
+    yaw = g.epmcV2.readRPY(2)
 
     self.rollText = tb.Label(self.rollValFrame, text="ROLL:", font=('Monospace',10, 'bold') ,bootstyle="danger")
     self.rollVal = tb.Label(self.rollValFrame, text=f'{roll}', font=('Monospace',10), bootstyle="dark")
@@ -81,8 +83,8 @@ class ImuVisualizeFrame(tb.Frame):
 
     #add created widgets to Frame
     self.label.pack(side='top', pady=(20,20))
-    self.selectFrameId.pack(side='top', fill='y', pady=(30,0))
-    self.setFilterGain.pack(side='top', fill='y', pady=(30,0))
+    # self.selectFrameId.pack(side='top', fill='y', pady=(30,0))
+    # self.setFilterGain.pack(side='top', fill='y', pady=(30,0))
     self.button.pack(side='top', fill='y', pady=(50,0))
 
     self.rollValFrame.pack(side='top', fill='x')
@@ -95,8 +97,8 @@ class ImuVisualizeFrame(tb.Frame):
   # def setFilterGainFunc(self, text):
   #   try:
   #     if text:
-  #       isSuccessful = g.serClient.send("/gain", float(text))
-  #       val = g.serClient.get("/gain")
+  #       isSuccessful = g.epmcV2.send("/gain", float(text))
+  #       val = g.epmcV2.get("/gain")
   #       g.filterGain = val
   #   except:
   #     pass
@@ -109,18 +111,18 @@ class ImuVisualizeFrame(tb.Frame):
   #     if frame_val_str:
         
   #       if frame_val_str == g.frameList[0]:
-  #         isSuccessful = g.serClient.send("/frame-id", 0)
+  #         isSuccessful = g.epmcV2.send("/frame-id", 0)
           
   #       elif frame_val_str == g.frameList[1]:
-  #         isSuccessful = g.serClient.send("/frame-id", 1)
+  #         isSuccessful = g.epmcV2.send("/frame-id", 1)
         
   #       elif frame_val_str == g.frameList[2]:
-  #         isSuccessful = g.serClient.send("/frame-id", 2)
+  #         isSuccessful = g.epmcV2.send("/frame-id", 2)
 
   #   except:
   #     pass
 
-  #   g.frameId = int(g.serClient.get("/frame-id"))
+  #   g.frameId = int(g.epmcV2.get("/frame-id"))
   #   return g.frameList[g.frameId]
 
 
@@ -131,7 +133,10 @@ class ImuVisualizeFrame(tb.Frame):
 
   def animate(self,i):
     try:
-      roll, pitch, yaw = g.serClient.get('/rpy')
+      roll = g.epmcV2.readRPY(0)
+      pitch = g.epmcV2.readRPY(1)
+      yaw = g.epmcV2.readRPY(2)
+
       self.rollVal.configure(text=f"{roll}")
       self.pitchVal.configure(text=f"{pitch}")
       self.yawVal.configure(text=f"{yaw}")

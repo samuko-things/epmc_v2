@@ -33,10 +33,6 @@ class EPMC_V2:
             return float(data[0])
         elif len(data)==2:
             return float(data[0]), float(data[1])
-        elif len(data)==3:
-            return float(data[0]), float(data[1]), float(data[2])
-        elif len(data)==4:
-            return float(data[0]), float(data[1]), float(data[2]), float(data[3])
         
     def readPos(self, motor_no):
         pos = self.get("/pos", motor_no)
@@ -78,14 +74,38 @@ class EPMC_V2:
         r, p, y = self.get("/rpy", -1)
         return r, p, y
     
-    def readAcc(self):
-        ax, ay, az = self.get("/acc", -1)
-        return ax, ay, az
+    def readUseIMU(self):
+        res = self.get("/use-imu", -1)
+        res = int(res)
+        if res == 1:
+            return True
+        else:
+            return False
     
-    def readGyro(self):
-        gx, gy, gz = self.get("/gyro", -1)
-        return gx, gy, gz
+    def readRPY(self, pos_no):
+        val = self.get("/rpy", pos_no)
+        return val
     
-    def readQuat(self):
-        qw, qx, qy, qz = self.get("/quat", -1)
-        return qw, qx, qy, qz
+    def readAcc(self, pos_no):
+        val = self.get("/acc", pos_no)
+        return val
+    
+    def readGyro(self, pos_no):
+        val = self.get("/gyro", pos_no)
+        return val
+    
+    def readQuat(self, pos_no):
+        val = self.get("/quat", pos_no)
+        return val
+    
+    def readAccVariance(self, pos_no):
+        val = self.get("/acc-var", pos_no)
+        return val
+    
+    def readGyroVariance(self, pos_no):
+        val = self.get("/gyro-var", pos_no)
+        return val
+    
+    def readRPYVariance(self, pos_no):
+        val = self.get("/rpy-var", pos_no)
+        return val
