@@ -10,7 +10,6 @@ from epmc_v2.pages.EncSetupPage import EncSetupFrame
 from epmc_v2.pages.PidSetupPage import PidSetupFrame
 from epmc_v2.pages.ImuCalibratePage import ImuCalibrateFrame
 from epmc_v2.pages.ImuVariancePage import ImuVarianceFrame
-from epmc_v2.pages.ImuVisualizePage import ImuVisualizeFrame
 
 
 
@@ -19,8 +18,7 @@ class MainAppFrame(tb.Frame):
   def __init__(self, parentFrame):
     super().__init__(master=parentFrame)
 
-    self.use_imu = g.epmcV2.readUseIMU()
-    print(self.use_imu)
+    self.use_imu = int(g.epmcV2.getUseIMU())
 
     # SIDEBAR NAVIGATION FRAME
     self.sideNavFrame = tb.LabelFrame(self, borderwidth=10)
@@ -60,22 +58,20 @@ class MainAppFrame(tb.Frame):
     self.button8 = tb.Button(self.sideNavFrame, text="MOTOR 3 PID", style=buttonStyleName,
                              command= lambda: self.displayPage(self.button8, self.displayMotor3PidSetupPage))
     
-    self.button9 = tb.Button(self.sideNavFrame, text="RESET PARAMS", style=buttonStyleName,
+    self.button9 = tb.Button(self.sideNavFrame, text="CONFIG / RST", style=buttonStyleName,
                              command= lambda: self.displayPage(self.button9, self.displayResetPage))
     
-    if (self.use_imu):
+    if (self.use_imu==1):
       self.button10 = tb.Button(self.sideNavFrame, text="IMU CALIBRATE", style=buttonStyleName,
                              command= lambda: self.displayPage(self.button10, self.displayImuCalibratePage))
-      self.button11 = tb.Button(self.sideNavFrame, text="IMU VISUALIZE", style=buttonStyleName,
-                             command= lambda: self.displayPage(self.button11, self.displayImuVisualizePage))
-      self.button12 = tb.Button(self.sideNavFrame, text="IMU VARIANCE", style=buttonStyleName,
-                             command= lambda: self.displayPage(self.button12, self.displayImuVariancePage))
+      self.button11 = tb.Button(self.sideNavFrame, text="IMU VARIANCE", style=buttonStyleName,
+                             command= lambda: self.displayPage(self.button11, self.displayImuVariancePage))
     else:
       self.button10 = tb.Button(self.sideNavFrame, text="I2C SETUP", style=buttonStyleName,
                              command= lambda: self.displayPage(self.button10, self.displayI2CSetupPage))
     
     
-    menu_padding = 30
+    menu_padding = 25
     # add widget to sideNavFrame
     self.label.pack(side="top", fill="x", padx=(menu_padding,0), pady=(0,menu_padding))
     self.button1.pack(side="top", fill="x", padx=5, pady=0)
@@ -87,10 +83,9 @@ class MainAppFrame(tb.Frame):
     self.button7.pack(side="top", fill="x", padx=5, pady=0)
     self.button8.pack(side="top", fill="x", padx=5, pady=(0,menu_padding))
     self.button9.pack(side="top", fill="x", padx=5, pady=0)
-    if (self.use_imu):
+    if (self.use_imu==1):
       self.button10.pack(side="top", fill="x", padx=5, pady=(menu_padding,0))
       self.button11.pack(side="top", fill="x", padx=5, pady=0)
-      self.button12.pack(side="top", fill="x", padx=5, pady=0)
     else:
       self.button10.pack(side="top", fill="x", padx=5, pady=0)
 
@@ -120,7 +115,6 @@ class MainAppFrame(tb.Frame):
     if(self.use_imu):
       self.button10.configure(state="normal")
       self.button11.configure(state="normal")
-      self.button12.configure(state="normal")
     else:
       self.button10.configure(state="normal")
   
@@ -180,10 +174,6 @@ class MainAppFrame(tb.Frame):
   def displayImuCalibratePage(self):
     self.imuCalibrateFrame = ImuCalibrateFrame(self.mainContentFrame)
     self.imuCalibrateFrame.pack(side="left", expand=True, fill="both")
-
-  def displayImuVisualizePage(self):
-    self.imuVisualizeFrame = ImuVisualizeFrame(self.mainContentFrame)
-    self.imuVisualizeFrame.pack(side="left", expand=True, fill="both")
 
   def displayImuVariancePage(self):
     self.imuVarianceFrame = ImuVarianceFrame(self.mainContentFrame)

@@ -26,6 +26,40 @@ class ImuVarianceFrame(tb.Frame):
     self.gyroz_arr = []
 
     self.label = tb.Label(self, text="COMPUTE IMU VARIANCE", font=('Monospace',16, 'bold') ,bootstyle="dark")
+
+    self.axValFrame = tb.Frame(self)
+    self.ayValFrame = tb.Frame(self)
+    self.azValFrame = tb.Frame(self)
+
+    ax = g.epmcV2.readAccVariance(0)
+    ay = g.epmcV2.readAccVariance(1)
+    az = g.epmcV2.readAccVariance(2)
+
+    self.axText = tb.Label(self.axValFrame, text="AX-VARIANCE:", font=('Monospace',10, 'bold') ,bootstyle="danger")
+    self.axVal = tb.Label(self.axValFrame, text=f'{ax}', font=('Monospace',10), bootstyle="dark")
+
+    self.ayText = tb.Label(self.ayValFrame, text="AY-VARIANCE:", font=('Monospace',10, 'bold') ,bootstyle="success")
+    self.ayVal = tb.Label(self.ayValFrame, text=f'{ay}', font=('Monospace',10), bootstyle="dark")
+
+    self.azText = tb.Label(self.azValFrame, text="AZ-VARIANCE:", font=('Monospace',10, 'bold') ,bootstyle="primary")
+    self.azVal = tb.Label(self.azValFrame, text=f'{az}', font=('Monospace',10), bootstyle="dark")
+
+    self.gxValFrame = tb.Frame(self)
+    self.gyValFrame = tb.Frame(self)
+    self.gzValFrame = tb.Frame(self)
+
+    gx = g.epmcV2.readGyroVariance(0)
+    gy = g.epmcV2.readGyroVariance(1)
+    gz = g.epmcV2.readGyroVariance(2)
+
+    self.gxText = tb.Label(self.gxValFrame, text="GX-VARIANCE:", font=('Monospace',10, 'bold') ,bootstyle="danger")
+    self.gxVal = tb.Label(self.gxValFrame, text=f'{gx}', font=('Monospace',10), bootstyle="dark")
+
+    self.gyText = tb.Label(self.gyValFrame, text="GY-VARIANCE:", font=('Monospace',10, 'bold') ,bootstyle="success")
+    self.gyVal = tb.Label(self.gyValFrame, text=f'{gy}', font=('Monospace',10), bootstyle="dark")
+
+    self.gzText = tb.Label(self.gzValFrame, text="GZ-VARIANCE:", font=('Monospace',10, 'bold') ,bootstyle="primary")
+    self.gzVal = tb.Label(self.gzValFrame, text=f'{gz}', font=('Monospace',10), bootstyle="dark")
   
     #create widgets to be added to the Fame
     percent = 0.0
@@ -40,6 +74,25 @@ class ImuVarianceFrame(tb.Frame):
                                  command=self.change_btn_state)
     
     self.canvasFrame = tb.Frame(self)
+
+    #add created widgets to displayFrame
+    self.axText.pack(side='left', fill='both')
+    self.axVal.pack(side='left', expand=True, fill='both')
+
+    self.ayText.pack(side='left', fill='both')
+    self.ayVal.pack(side='left', expand=True, fill='both')
+
+    self.azText.pack(side='left', fill='both')
+    self.azVal.pack(side='left', expand=True, fill='both')
+
+    self.gxText.pack(side='left', fill='both')
+    self.gxVal.pack(side='left', expand=True, fill='both')
+
+    self.gyText.pack(side='left', fill='both')
+    self.gyVal.pack(side='left', expand=True, fill='both')
+
+    self.gzText.pack(side='left', fill='both')
+    self.gzVal.pack(side='left', expand=True, fill='both')
     
     #add created widgets to Frame
     self.label.pack(side='top', pady=(20,50))
@@ -49,10 +102,18 @@ class ImuVarianceFrame(tb.Frame):
     self.canvasFrame.pack(side='top', expand=True, fill='both', pady=(10,0))
 
     #create widgets to be added to the canvasFame
-    self.canvas = tb.Canvas(self.canvasFrame, width=300, height=10, autostyle=False ,bg="#FFFFFF", relief='solid')
+    self.canvas = tb.Canvas(self.canvasFrame, width=300, height=2, autostyle=False ,bg="#FFFFFF", relief='solid')
 
     #add created widgets to canvasFame
-    self.canvas.pack(side='left', expand=True, fill='both')
+    self.canvas.pack(side='left', expand=True, fill='both', pady=(0,20))
+
+    self.axValFrame.pack(side='top', fill='x')
+    self.ayValFrame.pack(side='top', fill='x')
+    self.azValFrame.pack(side='top', fill='x', pady=(0,20))
+
+    self.gxValFrame.pack(side='top', fill='x')
+    self.gyValFrame.pack(side='top', fill='x')
+    self.gzValFrame.pack(side='top', fill='x')
 
     # start process
     self.compute_variance()
@@ -60,10 +121,6 @@ class ImuVarianceFrame(tb.Frame):
   def reset_all_params(self):
     self.loop_count = 0
     self.no_of_samples = 1000
-
-    self.r_arr = []
-    self.p_arr = []
-    self.y_arr = []
 
     self.accx_arr = []
     self.accy_arr = []
@@ -81,13 +138,9 @@ class ImuVarianceFrame(tb.Frame):
     if self.start_process:
       self.no_of_samples = 1000
 
-      r = g.epmcV2.readRPY(0)
-      p = g.epmcV2.readRPY(1)
-      y = g.epmcV2.readRPY(2)
-
-      self.r_arr.append(r)
-      self.p_arr.append(p)
-      self.y_arr.append(y)
+      self.axVal.configure(text="0.0")
+      self.ayVal.configure(text="0.0")
+      self.azVal.configure(text="0.0")
 
       accx_cal = g.epmcV2.readAcc(0)
       accy_cal = g.epmcV2.readAcc(1)
@@ -96,6 +149,10 @@ class ImuVarianceFrame(tb.Frame):
       self.accx_arr.append(accx_cal)
       self.accy_arr.append(accy_cal)
       self.accz_arr.append(accz_cal)
+
+      self.gxVal.configure(text="0.0")
+      self.gyVal.configure(text="0.0")
+      self.gzVal.configure(text="0.0")
 
       gyrox_cal = g.epmcV2.readGyro(0)
       gyroy_cal = g.epmcV2.readGyro(1)
@@ -123,24 +180,6 @@ class ImuVarianceFrame(tb.Frame):
       self.canvas.after(10, self.compute_variance)
 
   def print_computed_variance(self):
-    r_variance = np.var(self.r_arr)
-    p_variance = np.var(self.p_arr)
-    y_variance = np.var(self.y_arr)
-
-    g.epmcV2.writeRPYVariance(0, r_variance)
-    g.epmcV2.writeRPYVariance(1, p_variance)
-    g.epmcV2.writeRPYVariance(2, y_variance)
-
-    r_variance = g.epmcV2.readRPYVariance(0)
-    p_variance = g.epmcV2.readRPYVariance(1)
-    y_variance = g.epmcV2.readRPYVariance(2)
-
-    rpy_variance = [ r_variance, p_variance, y_variance]
-
-    print(colored("\n---------------------------------------------------------------", 'magenta'))
-    print(colored("stored rpy variances", 'green'))
-    print(rpy_variance)
-    print(colored("---------------------------------------------------------------", 'magenta'))
 
     accx_variance = np.var(self.accx_arr)
     accy_variance = np.var(self.accy_arr)
@@ -154,12 +193,11 @@ class ImuVarianceFrame(tb.Frame):
     accy_variance = g.epmcV2.readAccVariance(1)
     accz_variance = g.epmcV2.readAccVariance(2)
 
-    acc_variance = [ accx_variance, accy_variance, accz_variance]
+    self.axVal.configure(text=f'{accx_variance}')
+    self.ayVal.configure(text=f'{accy_variance}')
+    self.azVal.configure(text=f'{accz_variance}')
 
-    print(colored("\n---------------------------------------------------------------", 'magenta'))
-    print(colored("stored acc variances", 'green'))
-    print(acc_variance)
-    print(colored("---------------------------------------------------------------", 'magenta'))
+    # acc_variance = [ accx_variance, accy_variance, accz_variance]
 
     gyrox_variance = np.var(self.gyrox_arr)
     gyroy_variance = np.var(self.gyroy_arr)
@@ -173,12 +211,11 @@ class ImuVarianceFrame(tb.Frame):
     gyroy_variance = g.epmcV2.readGyroVariance(1)
     gyroz_variance = g.epmcV2.readGyroVariance(2)
 
-    gyro_variance = [ gyrox_variance, gyroy_variance, gyroz_variance]
+    self.gxVal.configure(text=f'{gyrox_variance}')
+    self.gyVal.configure(text=f'{gyroy_variance}')
+    self.gzVal.configure(text=f'{gyroz_variance}')
 
-    print(colored("\n---------------------------------------------------------------", 'magenta'))
-    print(colored("stored gyro variances", 'green'))
-    print(gyro_variance)
-    print(colored("---------------------------------------------------------------", 'magenta'))
+    # gyro_variance = [ gyrox_variance, gyroy_variance, gyroz_variance]
 
   def compute_variance(self):
     if self.start_process:

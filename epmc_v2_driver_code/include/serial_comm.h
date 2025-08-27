@@ -240,10 +240,10 @@ void recieve_and_send_data(){
       else if (dataMsgBufferArray[0] == "/i2c")
       {
         if (dataMsgBufferArray[2] == ""){
-          sendMsg = "-1";
+          sendMsg = getI2cAddress();
         }
         else {
-          sendMsg = "0";
+          sendMsg = setI2cAddress(dataMsgBufferArray[2].toInt());
         }
         Serial.println(sendMsg);
       }
@@ -256,24 +256,12 @@ void recieve_and_send_data(){
 
       else if (dataMsgBufferArray[0] == "/use-imu")
       {
-        sendMsg = useImu();
-        Serial.println(sendMsg);
-      }
-
-      else if (dataMsgBufferArray[0] == "/rpy")
-      {
-        if (pos_not_found)
-          sendMsg = "0.00";
-        else
-          sendMsg = readRPY(pos);
-        Serial.println(sendMsg);
-      }
-      else if (dataMsgBufferArray[0] == "/quat")
-      {
-        if (pos_not_found)
-          sendMsg = "0.00";
-        else
-          sendMsg = readQuat(pos);
+        if (dataMsgBufferArray[2] == ""){
+          sendMsg = getUseIMU();
+        }
+        else {
+          sendMsg = setUseIMU(dataMsgBufferArray[2].toInt());
+        }
         Serial.println(sendMsg);
       }
 
@@ -286,30 +274,12 @@ void recieve_and_send_data(){
         Serial.println(sendMsg);
       }
 
-      else if (dataMsgBufferArray[0] == "/gyro")
-      {
-        if (pos_not_found)
-          sendMsg = "0.00";
-        else
-          sendMsg = readGyro(pos);
-        Serial.println(sendMsg);
-      }
-
       else if (dataMsgBufferArray[0] == "/acc-raw")
       {
         if (pos_not_found)
           sendMsg = "0.00";
         else
           sendMsg = readAccRaw(pos);
-        Serial.println(sendMsg);
-      }
-
-      else if (dataMsgBufferArray[0] == "/gyro-raw")
-      {
-        if (pos_not_found)
-          sendMsg = "0.00";
-        else
-          sendMsg = readGyroRaw(pos);
         Serial.println(sendMsg);
       }
 
@@ -326,23 +296,6 @@ void recieve_and_send_data(){
             sendMsg = "0";
           else
             sendMsg = writeAccOffset(pos, dataMsgBufferArray[2].toFloat());
-        }
-        Serial.println(sendMsg);
-      }
-
-      else if (dataMsgBufferArray[0] == "/gyro-off")
-      {
-        if (dataMsgBufferArray[2] == ""){
-          if (pos_not_found)
-            sendMsg = "0.00";
-          else
-            sendMsg = readGyroOffset(pos);
-        }
-        else {
-          if (pos_not_found)
-            sendMsg = "0";
-          else
-            sendMsg = writeGyroOffset(pos, dataMsgBufferArray[2].toFloat());
         }
         Serial.println(sendMsg);
       }
@@ -364,6 +317,41 @@ void recieve_and_send_data(){
         Serial.println(sendMsg);
       }
 
+      else if (dataMsgBufferArray[0] == "/gyro")
+      {
+        if (pos_not_found)
+          sendMsg = "0.00";
+        else
+          sendMsg = readGyro(pos);
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/gyro-raw")
+      {
+        if (pos_not_found)
+          sendMsg = "0.00";
+        else
+          sendMsg = readGyroRaw(pos);
+        Serial.println(sendMsg);
+      }
+
+      else if (dataMsgBufferArray[0] == "/gyro-off")
+      {
+        if (dataMsgBufferArray[2] == ""){
+          if (pos_not_found)
+            sendMsg = "0.00";
+          else
+            sendMsg = readGyroOffset(pos);
+        }
+        else {
+          if (pos_not_found)
+            sendMsg = "0";
+          else
+            sendMsg = writeGyroOffset(pos, dataMsgBufferArray[2].toFloat());
+        }
+        Serial.println(sendMsg);
+      }
+
       else if (dataMsgBufferArray[0] == "/gyro-var")
       {
         if (dataMsgBufferArray[2] == ""){
@@ -377,23 +365,6 @@ void recieve_and_send_data(){
             sendMsg = "0";
           else
             sendMsg = writeGyroVariance(pos, dataMsgBufferArray[2].toFloat());
-        }
-        Serial.println(sendMsg);
-      }
-
-      else if (dataMsgBufferArray[0] == "/rpy-var")
-      {
-        if (dataMsgBufferArray[2] == ""){
-          if (pos_not_found)
-            sendMsg = "0.00";
-          else
-            sendMsg = readRPYVariance(pos);
-        }
-        else {
-          if (pos_not_found)
-            sendMsg = "0";
-          else
-            sendMsg = writeRPYVariance(pos, dataMsgBufferArray[2].toFloat());
         }
         Serial.println(sendMsg);
       }

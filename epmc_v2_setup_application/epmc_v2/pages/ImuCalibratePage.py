@@ -29,6 +29,40 @@ class ImuCalibrateFrame(tb.Frame):
     self.gyro_z = deque(maxlen=self.no_of_samples)
 
     self.label = tb.Label(self, text="CALIBRATE IMU", font=('Monospace',16, 'bold') ,bootstyle="dark")
+    
+    self.axValFrame = tb.Frame(self)
+    self.ayValFrame = tb.Frame(self)
+    self.azValFrame = tb.Frame(self)
+
+    ax = g.epmcV2.readAccOffset(0)
+    ay = g.epmcV2.readAccOffset(1)
+    az = g.epmcV2.readAccOffset(2)
+
+    self.axText = tb.Label(self.axValFrame, text="AX-OFFSET:", font=('Monospace',10, 'bold') ,bootstyle="danger")
+    self.axVal = tb.Label(self.axValFrame, text=f'{ax}', font=('Monospace',10), bootstyle="dark")
+
+    self.ayText = tb.Label(self.ayValFrame, text="AY-OFFSET:", font=('Monospace',10, 'bold') ,bootstyle="success")
+    self.ayVal = tb.Label(self.ayValFrame, text=f'{ay}', font=('Monospace',10), bootstyle="dark")
+
+    self.azText = tb.Label(self.azValFrame, text="AZ-OFFSET:", font=('Monospace',10, 'bold') ,bootstyle="primary")
+    self.azVal = tb.Label(self.azValFrame, text=f'{az}', font=('Monospace',10), bootstyle="dark")
+
+    self.gxValFrame = tb.Frame(self)
+    self.gyValFrame = tb.Frame(self)
+    self.gzValFrame = tb.Frame(self)
+
+    gx = g.epmcV2.readGyroOffset(0)
+    gy = g.epmcV2.readGyroOffset(1)
+    gz = g.epmcV2.readGyroOffset(2)
+
+    self.gxText = tb.Label(self.gxValFrame, text="GX-OFFSET:", font=('Monospace',10, 'bold') ,bootstyle="danger")
+    self.gxVal = tb.Label(self.gxValFrame, text=f'{gx}', font=('Monospace',10), bootstyle="dark")
+
+    self.gyText = tb.Label(self.gyValFrame, text="GY-OFFSET:", font=('Monospace',10, 'bold') ,bootstyle="success")
+    self.gyVal = tb.Label(self.gyValFrame, text=f'{gy}', font=('Monospace',10), bootstyle="dark")
+
+    self.gzText = tb.Label(self.gzValFrame, text="GZ-OFFSET:", font=('Monospace',10, 'bold') ,bootstyle="primary")
+    self.gzVal = tb.Label(self.gzValFrame, text=f'{gz}', font=('Monospace',10), bootstyle="dark")
   
     #create widgets to be added to the Fame
     percent = 0.0
@@ -44,6 +78,26 @@ class ImuCalibrateFrame(tb.Frame):
     
     self.canvasFrame = tb.Frame(self)
     
+
+    #add created widgets to displayFrame
+    self.axText.pack(side='left', fill='both')
+    self.axVal.pack(side='left', expand=True, fill='both')
+
+    self.ayText.pack(side='left', fill='both')
+    self.ayVal.pack(side='left', expand=True, fill='both')
+
+    self.azText.pack(side='left', fill='both')
+    self.azVal.pack(side='left', expand=True, fill='both')
+
+    self.gxText.pack(side='left', fill='both')
+    self.gxVal.pack(side='left', expand=True, fill='both')
+
+    self.gyText.pack(side='left', fill='both')
+    self.gyVal.pack(side='left', expand=True, fill='both')
+
+    self.gzText.pack(side='left', fill='both')
+    self.gzVal.pack(side='left', expand=True, fill='both')
+    
     #add created widgets to Frame
     self.label.pack(side='top', pady=(20,50))
     self.textVal.pack(side='top', expand=True, fill='y')
@@ -52,10 +106,18 @@ class ImuCalibrateFrame(tb.Frame):
     self.canvasFrame.pack(side='top', expand=True, fill='both', pady=(10,0))
 
     #create widgets to be added to the canvasFame
-    self.canvas = tb.Canvas(self.canvasFrame, width=300, height=10, autostyle=False ,bg="#FFFFFF", relief='solid')
+    self.canvas = tb.Canvas(self.canvasFrame, width=300, height=2, autostyle=False ,bg="#FFFFFF", relief='solid')
 
     #add created widgets to canvasFame
-    self.canvas.pack(side='left', expand=True, fill='both')
+    self.canvas.pack(side='left', expand=True, fill='both', pady=(0,20))
+
+    self.axValFrame.pack(side='top', fill='x')
+    self.ayValFrame.pack(side='top', fill='x')
+    self.azValFrame.pack(side='top', fill='x', pady=(0,20))
+
+    self.gxValFrame.pack(side='top', fill='x')
+    self.gyValFrame.pack(side='top', fill='x')
+    self.gzValFrame.pack(side='top', fill='x')
 
     # start process
     self.calibrate_imu()
@@ -78,6 +140,11 @@ class ImuCalibrateFrame(tb.Frame):
 
   def read_data(self):
     if self.start_process:
+
+      self.axVal.configure(text="0.0")
+      self.ayVal.configure(text="0.0")
+      self.azVal.configure(text="0.0")
+
       ax = g.epmcV2.readAccRaw(0)
       ay = g.epmcV2.readAccRaw(1)
       az = g.epmcV2.readAccRaw(2)
@@ -85,6 +152,10 @@ class ImuCalibrateFrame(tb.Frame):
       self.acc_x.append(ax)
       self.acc_y.append(ay)
       self.acc_z.append(az)
+
+      self.gxVal.configure(text="0.0")
+      self.gyVal.configure(text="0.0")
+      self.gzVal.configure(text="0.0")
 
       gx = g.epmcV2.readGyroRaw(0)
       gy = g.epmcV2.readGyroRaw(1)
@@ -136,13 +207,11 @@ class ImuCalibrateFrame(tb.Frame):
     ay_offset = g.epmcV2.readAccOffset(1)
     az_offset = g.epmcV2.readAccOffset(2)
 
+    self.axVal.configure(text=f'{ax_offset}')
+    self.ayVal.configure(text=f'{ay_offset}')
+    self.azVal.configure(text=f'{az_offset}')
+    
     acc_calibration = [ ax_offset, ay_offset, az_offset ]
-
-    print(colored("\n---------------------------------------------------------------", 'magenta'))
-    print(colored("stored acc offsets in m/s^2:", 'green'))
-    print(acc_calibration)
-    print(colored("---------------------------------------------------------------", 'magenta'))
-
 
     g.epmcV2.writeGyroOffset(0, gx_offset)
     g.epmcV2.writeGyroOffset(1, gy_offset)
@@ -152,12 +221,11 @@ class ImuCalibrateFrame(tb.Frame):
     gy_offset = g.epmcV2.readGyroOffset(1)
     gz_offset = g.epmcV2.readGyroOffset(2)
 
-    gyro_calibration = [ gx_offset, gy_offset, gz_offset]
+    self.gxVal.configure(text=f'{gx_offset}')
+    self.gyVal.configure(text=f'{gy_offset}')
+    self.gzVal.configure(text=f'{gz_offset}')
 
-    print(colored("\n---------------------------------------------------------------", 'magenta'))
-    print(colored("stored gyro offsets in rad/s:", 'green'))
-    print(gyro_calibration)
-    print(colored("---------------------------------------------------------------", 'magenta'))
+    gyro_calibration = [ gx_offset, gy_offset, gz_offset]
 
 
     fig, (accUncal, accCal, gyroUncal, gyroCal) = plt.subplots(nrows=4)
