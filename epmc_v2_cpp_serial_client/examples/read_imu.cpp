@@ -18,36 +18,15 @@ void delay_ms(unsigned long milliseconds)
 
 int main(int argc, char **argv)
 {
-
-  float roll, pitch, yaw;
+  float ax, ay, az;
+  float gx, gy, gz;
 
   auto prevTime = std::chrono::system_clock::now();
   std::chrono::duration<double> duration;
-  float sampleTime = 0.02;
+  float sampleTime = 0.01;
 
-  // std::string port = "/dev/serial/by-path/pci-0000:00:14.0-usb-0:1.4:1.0-port0";
   std::string port = "/dev/ttyUSB0";
   epmcV2.connect(port);
-
-  // // wait for the epmcV2 to fully setup
-  // for (int i = 1; i <= 6; i += 1)
-  // {
-  //   delay_ms(1000);
-  //   std::cout << "configuring controller: " << i << " sec" << std::endl;
-  // }
-
-  // // change the reference frame to ENU frame (0 - NWU,  1 - ENU,  2 - NED)
-  // epmcV2.setRefFrame(1);
-  // int ref_frame_id;
-
-  // // check the refence frame the epmcV2 is working in (0 - NWU,  1 - ENU,  2 - NED)
-  // epmcV2.getRefFrame(ref_frame_id);
-  // if (ref_frame_id == 0)
-  //   std::cout << "Reference Frame is North-West-Up (NWU) " << std::endl;
-  // else if (ref_frame_id == 1)
-  //   std::cout << "Reference Frame is East-North-Up (ENU) " << std::endl;
-  // else if (ref_frame_id == 2)
-  //   std::cout << "Reference Frame is North-East-Down (NED) " << std::endl;
 
   // wait for the epmcV2 to fully setup
   for (int i = 1; i <= 2; i += 1)
@@ -55,6 +34,8 @@ int main(int argc, char **argv)
     delay_ms(1000);
     std::cout << "configuring controller: " << i << " sec" << std::endl;
   }
+
+  int use_imu = epmcV2.getUseIMU();
 
   prevTime = std::chrono::system_clock::now();
 
@@ -65,18 +46,32 @@ int main(int argc, char **argv)
     {
       try
       {
-        roll = epmcV2.readRPY(0);
-        pitch = epmcV2.readRPY(1);
-        yaw = epmcV2.readRPY(2);
+        if (use_imu == 1){
+          ax = epmcV2.readAcc(0);
+          ay = epmcV2.readAcc(1);
+          az = epmcV2.readAcc(2);
+
+          gx = epmcV2.readGyro(0);
+          gy = epmcV2.readGyro(1);
+          gz = epmcV2.readGyro(2);
+        }
       }
       catch (...)
       {
       }
-
-      std::cout << "ROLL: " << roll << std::fixed << std::setprecision(4) << std::endl;
-      std::cout << "PITCH: " << pitch << std::fixed << std::setprecision(4) << std::endl;
-      std::cout << "YAW: " << yaw << std::fixed << std::setprecision(4) << std::endl;
-      std::cout << std::endl;
+      if (use_imu == 1){
+        std::cout << "ax: " << ax << std::fixed << std::setprecision(4);
+        std::cout << "\tay: " << ax << std::fixed << std::setprecision(4);
+        std::cout << "\taz: " << az << std::fixed << std::setprecision(4) << std::endl;
+        std::cout << "gx: " << ax << std::fixed << std::setprecision(4);
+        std::cout << "\tgy: " << ax << std::fixed << std::setprecision(4);
+        std::cout << "\tgz: " << az << std::fixed << std::setprecision(4) << std::endl;
+        std::cout << std::endl;
+      }
+      else{
+        std::cout << "IMU Mode Not Activated" << std::endl;
+      }
+      
 
       prevTime = std::chrono::system_clock::now();
     }

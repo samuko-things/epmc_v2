@@ -150,41 +150,38 @@ public:
     return mode;
   }
 
-  bool readUseImu()
+  int getUseIMU()
   {
     std::stringstream cmd_str;
-    cmd_str << "/acc" << "," << -1;
+    cmd_str << "/use-imu" << "," << -1;
     get(cmd_str.str());
 
-    float a = val[0];
+    int mode = (int)val[0];
 
     val[0] = 0.0;
     val[1] = 0.0;
 
-    if ((int)a == 1)
-      return true;
-    else
-      return false;
-  }
-
-  float readRPY(int pos_no)
-  {
-    std::stringstream cmd_str;
-    cmd_str << "/rpy" << "," << pos_no;
-    get(cmd_str.str());
-
-    float rpy_val = val[0];
-
-    val[0] = 0.0;
-    val[1] = 0.0;
-
-    return rpy_val;
+    return mode;
   }
 
   float readAcc(int pos_no)
   {
     std::stringstream cmd_str;
     cmd_str << "/acc" << "," << pos_no;
+    get(cmd_str.str());
+
+    float acc_val = val[0];
+
+    val[0] = 0.0;
+    val[1] = 0.0;
+
+    return acc_val;
+  }
+
+  float readAccVarinace(int pos_no)
+  {
+    std::stringstream cmd_str;
+    cmd_str << "/acc-var" << "," << pos_no;
     get(cmd_str.str());
 
     float acc_val = val[0];
@@ -207,48 +204,6 @@ public:
     val[1] = 0.0;
 
     return gyro_val;
-  }
-
-  float readQuat(int pos_no)
-  {
-    std::stringstream cmd_str;
-    cmd_str << "/quat" << "," << pos_no;
-    get(cmd_str.str());
-
-    float q = val[0];
-
-    val[0] = 0.0;
-    val[1] = 0.0;
-
-    return q;
-  }
-
-  float readRPYVariance(int pos_no)
-  {
-    std::stringstream cmd_str;
-    cmd_str << "/rpy-var" << "," << pos_no;
-    get(cmd_str.str());
-
-    float rpy_val = val[0];
-
-    val[0] = 0.0;
-    val[1] = 0.0;
-
-    return rpy_val;
-  }
-
-  float readAccVarinace(int pos_no)
-  {
-    std::stringstream cmd_str;
-    cmd_str << "/acc-var" << "," << pos_no;
-    get(cmd_str.str());
-
-    float acc_val = val[0];
-
-    val[0] = 0.0;
-    val[1] = 0.0;
-
-    return acc_val;
   }
 
   float readGyroVariance(int pos_no)

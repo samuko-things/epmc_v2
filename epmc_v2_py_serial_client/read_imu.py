@@ -28,10 +28,20 @@ def main():
   while True:
     if time.time() - prevTime > sampleTime:
       try:
-        roll = epmcV2.readRPY(0)
-        pitch = epmcV2.readRPY(1)
-        yaw = epmcV2.readRPY(2)
-        print(f"roll: {roll}\tpitch: {pitch}\tyaw: {yaw}\n")
+        use_imu = epmcV2.getUseIMU()
+        if(use_imu == 1):
+          ax = epmcV2.readAcc(0)
+          ay = epmcV2.readAcc(1)
+          az = epmcV2.readAcc(2)
+
+          gx = epmcV2.readGyro(0)
+          gy = epmcV2.readGyro(1)
+          gz = epmcV2.readGyro(2)
+
+          print(f"ax: {ax}\tay: {ay}\taz: {az}")
+          print(f"gx: {gx}\tgy: {gy}\tgz: {gz}\n")
+        else:
+          print("IMU Mode Not Activated")
       except:
         pass
       

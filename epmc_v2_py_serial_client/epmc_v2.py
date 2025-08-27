@@ -70,42 +70,22 @@ class EPMC_V2:
         mode = self.get("/mode", motor_no)
         return mode
     
-    def readRPY(self):
-        r, p, y = self.get("/rpy", -1)
-        return r, p, y
-    
-    def readUseIMU(self):
-        res = self.get("/use-imu", -1)
-        res = int(res)
-        if res == 1:
-            return True
-        else:
-            return False
-    
-    def readRPY(self, pos_no):
-        val = self.get("/rpy", pos_no)
+    def getUseIMU(self):
+        val = self.get("/use-imu", -1)
         return val
     
     def readAcc(self, pos_no):
         val = self.get("/acc", pos_no)
         return val
     
-    def readGyro(self, pos_no):
-        val = self.get("/gyro", pos_no)
-        return val
-    
-    def readQuat(self, pos_no):
-        val = self.get("/quat", pos_no)
-        return val
-    
     def readAccVariance(self, pos_no):
         val = self.get("/acc-var", pos_no)
         return val
     
-    def readGyroVariance(self, pos_no):
-        val = self.get("/gyro-var", pos_no)
+    def readGyro(self, pos_no):
+        val = self.get("/gyro", pos_no)
         return val
     
-    def readRPYVariance(self, pos_no):
-        val = self.get("/rpy-var", pos_no)
+    def readGyroVariance(self, pos_no):
+        val = self.get("/gyro-var", pos_no)
         return val
