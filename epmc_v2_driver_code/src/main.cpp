@@ -291,11 +291,12 @@ void loop()
     madgwickFilter.getOrientationRPY(roll, pitch, yaw);
     madgwickFilter.getOrientationQuat(qw, qx, qy, qz);
 
-    randomSeed(millis());
-    int randGain = random(9, 15);
-    if (randGain < 10) randGain = 0;
-    float gain = (float)randGain/10.0;
-    angAccum += ((driftGain*(float)readImuSampleTime*gain)/1000.0);
+    // randomSeed(millis());
+    // int randGain = random(8, 20);
+    // if (randGain < 10) randGain = -10;
+    // float gain = (float)randGain/10.0;
+    // float gain = 1.0;
+    angAccum += ((driftGain*(float)readImuSampleTime)/1000.0);
     rpy[0] = roll; rpy[1] = pitch; rpy[2] = yaw - angAccum;
     quat[0] = qw; quat[1] = qx; quat[2] = qy; quat[3] = qz;
     // ----------------------------------------------------//
